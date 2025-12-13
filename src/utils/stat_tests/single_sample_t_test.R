@@ -88,7 +88,4 @@ single_sample_t_test = function(input, output, stats, plotdata) {
     output$distribution_display = renderPlot({
         
     })
-    
-    #### WHAT NEEDS TO BE RETURNED? ####
-    return(list(input = input, output = output, stats = stats, plotdata = plotdata))
 }

@@ -1,17 +1,37 @@
 observe_events = function(input, output, stats, plotdata){
   observeEvent(input$answers,
                {
-                 output$stats_display = renderRHandsontable(if (input$Test == 3) {
-                   rhandsontable(stats$data_table) %>%
-                     hot_col("P_Value_of_X_and_Below", format = "0.0000") %>%
-                     hot_col("P_Value_of_X_and_Above", format = "0.0000")
-                 }else if (input$Test == 5 | input$Test == 6){
-                   rhandsontable(stats$data_table) %>%
-                     hot_col("p_obs", format = "0.0000")
-                 }
-                 else{
-                   rhandsontable(stats$data_table)
+                 output$stats_display <- renderRHandsontable({
+                   
+                   # Take first row of stats and pivot to vertical
+                   tbl <- as.data.frame(t(stats$data_table[1, ]))
+                   tbl$Statistic <- rownames(tbl)
+                   rownames(tbl) <- NULL
+                   tbl <- tbl[, c("Statistic", names(tbl)[1])]
+                   names(tbl)[2] <- "Value"
+                   
+                   ht <- rhandsontable(
+                     tbl,
+                     rowHeaders = FALSE,
+                     width = "100%",
+                     useTypes = FALSE
+                   ) %>%
+                     hot_table(stretchH = "all", highlightRow = TRUE) %>%
+                     hot_context_menu(FALSE) %>%
+                     hot_cols(readOnly = TRUE)
+                   
+                   # Conditional formatting
+                   if (input$Test == 3) {
+                     ht <- ht %>%
+                       hot_col("Value", format = "0.0000")
+                   } else if (input$Test %in% c(5, 6, 7)) {
+                     ht <- ht %>%
+                       hot_col("Value", format = "0.0000")
+                   }
+                   
+                   ht
                  })
+                 
                })
   
   observeEvent(input$distribution,
@@ -40,6 +60,19 @@ observe_events = function(input, output, stats, plotdata){
                      ) +
                      theme_classic() +
                      theme(text = element_text(size = 20))
+                 } else if (input$Test == 7) {
+                   rng <- range(plotdata$data$data, na.rm = TRUE)
+                   ggplot(aes(x = data), data = plotdata$data) +
+                     geom_histogram(color = "#E27D60",
+                                    fill = "#E8A87C",
+                                    binwidth = 1) +
+                     scale_x_continuous(
+                       breaks = floor(rng[1]) : ceiling(rng[2]),
+                       limits = c(floor(rng[1]) - 1, ceiling(rng[2]) + 1),
+                       name = 'Difference Values'
+                     ) +
+                     ylab('Frequency Count') +
+                     theme_classic()
                  }
                  else{
                    ggplot(aes(x = data), data = plotdata$data) +

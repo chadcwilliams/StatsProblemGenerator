@@ -11,7 +11,8 @@ UI = function(){
                     "Correlation & Regression" = 4,
                     "Single Participant Z-Test" = 3,
                     "Single Sample Z-Test" = 5,
-                    "Single Sample T-Test" = 6
+                    "Single Sample T-Test" = 6,
+                    'Repeated Samples T-Test' = 7
                   ),
                   selected = 1
                 ),

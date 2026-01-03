@@ -37,6 +37,7 @@ single_sample_t_test = function(input, output, stats, plotdata) {
     data$X_Mean = c(mean(data$Data),
                     rep(NA, input$num_of_participants - 1))
     plotdata$data = as.data.frame(data$Data)
+    
     #Create Stats
     t=if (direction == 1){t.test(data$Data,mu=data$mu[1])
     }else if (direction == 2) {t.test(data$Data,mu=data$mu[1],alternative = 'less')

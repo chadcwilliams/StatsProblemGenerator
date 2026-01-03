@@ -22,6 +22,7 @@ source(here("src", "utils", "stat_tests", "single_participant_z_test.R"))
 source(here("src", "utils", "stat_tests", "correlation_regression.R"))
 source(here("src", "utils", "stat_tests", "single_sample_z_test.R"))
 source(here("src", "utils", "stat_tests", "single_sample_t_test.R"))
+source(here("src", "utils", "stat_tests", "repeated_samples_t_test.R"))
 
 #UI
 ui = UI
@@ -37,7 +38,8 @@ server = function(input, output) {
       '3' = single_participant_z_test,
       '4' = correlation_regression,
       '5' = single_sample_z_test,
-      '6' = single_sample_t_test
+      '6' = single_sample_t_test,
+      '7' = repeated_samples_t_test
     )
     
     observeEvent(input$refresh, {

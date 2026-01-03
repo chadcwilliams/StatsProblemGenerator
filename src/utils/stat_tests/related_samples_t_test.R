@@ -41,9 +41,9 @@ related_samples_t_test <- function(input, output, stats, plotdata) {
     }
     
     data$n = input$num_of_participants
-    data$D_Mean = c(mean(data$Data),
+    data$D_Mean = c(round(mean(data$Data),4),
                     rep(NA, input$num_of_participants - 1))
-    data$SS = sum(((data$Data - mean(data$Data))^2))
+    data$SS = round(sum(((data$Data - mean(data$Data))^2)),4)
     
     
     plotdata$data = as.data.frame(data$Data)

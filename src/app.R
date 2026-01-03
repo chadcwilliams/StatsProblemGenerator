@@ -11,18 +11,17 @@ library(rhandsontable) #Data tables
 library(ggplot2) #Plotting
 library(faux) #Creating correlated data (rnorm_multi)
 library(rstatix) #Dependency of faux
-library(here) #Project paths
 
 #Setup
-source(here("src", "utils", "ui.R"))
-source(here("src", "utils", "observe_events.R"))
-source(here("src", "utils", "stat_tests", "freq_distribution.R"))
-source(here("src", "utils", "stat_tests", "descriptives.R"))
-source(here("src", "utils", "stat_tests", "single_participant_z_test.R"))
-source(here("src", "utils", "stat_tests", "correlation_regression.R"))
-source(here("src", "utils", "stat_tests", "single_sample_z_test.R"))
-source(here("src", "utils", "stat_tests", "single_sample_t_test.R"))
-source(here("src", "utils", "stat_tests", "related_samples_t_test.R"))
+source("utils/ui.R")
+source("utils/observe_events.R")
+source("utils/stat_tests/freq_distribution.R")
+source("utils/stat_tests/descriptives.R")
+source("utils/stat_tests/single_participant_z_test.R")
+source("utils/stat_tests/correlation_regression.R")
+source("utils/stat_tests/single_sample_z_test.R")
+source("utils/stat_tests/single_sample_t_test.R")
+source("utils/stat_tests/related_samples_t_test.R")
 
 #UI
 ui = UI

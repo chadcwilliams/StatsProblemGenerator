@@ -1,4 +1,4 @@
-repeated_samples_t_test <- function(input, output, stats, plotdata) {
+related_samples_t_test <- function(input, output, stats, plotdata) {
   
   # --------------------------------------------------------------
   # Create paired data

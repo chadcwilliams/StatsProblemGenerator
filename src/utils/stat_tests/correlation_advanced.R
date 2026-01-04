@@ -92,7 +92,7 @@ correlation_advanced = function(input, output, stats, plotdata) {
   
   output$data_display <- renderRHandsontable({
     
-    tbl <- as.data.frame(t(data[1, 2:ncol(data)]))
+    tbl <- as.data.frame(t(data[1, ]))
     tbl$Statistic <- rownames(tbl)
     rownames(tbl) <- NULL
     tbl <- tbl[, c("Statistic", names(tbl)[1])]

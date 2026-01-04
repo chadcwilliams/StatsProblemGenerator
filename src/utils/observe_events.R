@@ -43,20 +43,24 @@ observe_events = function(input, output, stats, plotdata){
                        stats$data_table$P_Value_of_X_and_Below * 100
                      )) + .5, color = 'red') +
                      theme_void()
-                 } else if (input$Test == 4) {
+                 } else if (input$Test == 4 || input$Test == 8) {
                    ggplot(aes(x = X, y = Y), data = plotdata$data) +
                      geom_point(size = 4, alpha = .5) +
-                     geom_smooth(method = lm, se = F) +
-                     geom_segment(
-                       y = min(plotdata$data$Y),
-                       x = (stats$data_table$ax + (
-                         stats$data_table$bx * min(plotdata$data$Y)
-                       )),
-                       yend = max(plotdata$data$Y),
-                       xend = (stats$data_table$ax + (
-                         stats$data_table$bx * max(plotdata$data$Y)
-                       )),
-                       color = 'red'
+                     (
+                       if (input$Test == 4)
+                         list(
+                           geom_segment(
+                             y = min(plotdata$data$Y),
+                             x = stats$data_table$ax +
+                               stats$data_table$bx * min(plotdata$data$Y),
+                             yend = max(plotdata$data$Y),
+                             xend = stats$data_table$ax +
+                               stats$data_table$bx * max(plotdata$data$Y),
+                             color = "red"
+                           ),
+                           geom_smooth(method = lm, se = FALSE)
+                         )
+                       else NULL
                      ) +
                      theme_classic() +
                      theme(text = element_text(size = 20))

@@ -142,7 +142,7 @@ related_samples_t_test <- function(input, output, stats, plotdata) {
       hot_col("Statistic", readOnly = TRUE) %>%
       hot_col("Value", format = "0.000") %>%
       hot_table(
-        stretchH = "all",      # ← THIS removes horizontal scrolling
+        stretchH = "all",
         highlightRow = TRUE
       )
   })

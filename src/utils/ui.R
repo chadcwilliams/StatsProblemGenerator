@@ -23,8 +23,8 @@ UI = function(){
                   choices = c(
                     " " = "",
                     "Related Samples T-Test" = 7,
-                    "Correlation (Advanced)" = 8#,
-                    #"Independent Samples T-Test" = 9
+                    "Correlation (Advanced)" = 8,
+                    "Independent Samples T-Test" = 9
                   ),
                   selected = ""
                 ),

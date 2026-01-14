@@ -64,18 +64,35 @@ observe_events = function(input, output, stats, plotdata, active_test){
                      ) +
                      theme_classic() +
                      theme(text = element_text(size = 20))
-                 } else if (active_test() == 7) {
-                   rng <- range(plotdata$data$data, na.rm = TRUE)
-                   ggplot(aes(x = data), data = plotdata$data) +
-                     geom_histogram(color = "#E27D60",
-                                    fill = "#E8A87C",
-                                    binwidth = 1) +
+                 } else if (active_test() == 9) {
+                   print('HHHHH')
+                   print(plotdata)
+                   rng <- range(
+                     c(plotdata$data$Data1, plotdata$data$Data2),
+                     na.rm = TRUE
+                   )
+                   
+                   ggplot(plotdata$data) +
+                     geom_histogram(
+                       aes(x = Data1),
+                       fill = "#E27D60",
+                       color = "#E27D60",
+                       alpha = 0.5,
+                       binwidth = 1
+                     ) +
+                     geom_histogram(
+                       aes(x = Data2),
+                       fill = "#85DCB0",
+                       color = "#85DCB0",
+                       alpha = 0.5,
+                       binwidth = 1
+                     ) +
                      scale_x_continuous(
                        breaks = floor(rng[1]) : ceiling(rng[2]),
                        limits = c(floor(rng[1]) - 1, ceiling(rng[2]) + 1),
-                       name = 'Difference Values'
+                       name = "Values"
                      ) +
-                     ylab('Frequency Count') +
+                     ylab("Frequency Count") +
                      theme_classic()
                  }
                  else{

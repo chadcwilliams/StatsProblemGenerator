@@ -3,50 +3,34 @@ related_samples_t_test <- function(input, output, stats, plotdata) {
   # --------------------------------------------------------------
   # Create paired data
   # --------------------------------------------------------------
+  
+  #Determine different means for each distribution
+  range = input$value_range[2] - input$value_range[1]
+  center = input$value_range[1] + range / 2
+  offset = range / 10
+  if (runif(1) < .5) {
+    m1 = center + offset
+    m2 = center - offset
+  } else {
+    m1 = center - offset
+    m2 = center + offset
+  }
+  
+  #Determine data
   raw <- data.frame(
-    Pre = sample(
-      input$value_range[1]:input$value_range[2],
+    Pre = round(rnorm(
       input$num_of_participants,
-      replace = TRUE
-    ),
-    Post = sample(
-      input$value_range[1]:input$value_range[2],
+      mean = m1,
+      sd = range / 6
+    )),
+    Post = round(rnorm(
       input$num_of_participants,
-      replace = TRUE
-    )
+      mean = m2,
+      sd = range / 6
+    ))
   )
+  
   raw$Diff <- raw$Post - raw$Pre
-
-  ##########################
-  data = data.frame(
-        Data = raw$Diff
-    )
-    data$mu[1] = 0
-    data$p_alpha = c(.05, rep(NA, input$num_of_participants - 1))
-    
-    dir = runif(1)
-    if (dir < .5) {
-        data$direction = c('Two-Tail',
-                            rep(NA, input$num_of_participants - 1))
-        direction = 1
-    } else if (dir < .75) {
-        data$direction = c('One-Tail (lower)',
-                            rep(NA, input$num_of_participants - 1))
-        direction = 2
-    }
-    else{
-        data$direction = c('One-Tail (higher)',
-                            rep(NA, input$num_of_participants - 1))
-        direction = 3
-    }
-    
-    data$n = input$num_of_participants
-    data$D_Mean = c(round(mean(data$Data),4),
-                    rep(NA, input$num_of_participants - 1))
-    data$SS = round(sum(((data$Data - mean(data$Data))^2)),4)
-    
-    
-    plotdata$data = as.data.frame(data$Data)
   
   # --------------------------------------------------------------
   # Direction
@@ -62,6 +46,22 @@ related_samples_t_test <- function(input, output, stats, plotdata) {
     direction <- 3
     direction_label <- "One-Tail (higher)"
   }
+
+  # --------------------------------------------------------------
+  # Create data
+  # --------------------------------------------------------------
+  
+  data = data.frame(
+        Data = raw$Diff
+    )
+  data$mu[1] = 0
+  data$p_alpha = c(.05, rep(NA, input$num_of_participants - 1))
+  data$direction = c(direction_label, rep(NA, input$num_of_participants - 1))
+  data$n = input$num_of_participants
+  data$D_Mean = c(round(mean(data$Data),4), rep(NA, input$num_of_participants - 1))
+  data$SS = round(sum(((data$Data - mean(data$Data))^2)),4)
+  
+  plotdata$data = as.data.frame(data$Data)
   
   # --------------------------------------------------------------
   # Descriptive statistics
@@ -71,7 +71,6 @@ related_samples_t_test <- function(input, output, stats, plotdata) {
   SE_D  <- SD_D / sqrt(input$num_of_participants)
 
   t_obs <- D_bar / SE_D
-  print(t_obs)
   df    <- input$num_of_participants - 1
   
   # --------------------------------------------------------------
@@ -89,9 +88,9 @@ related_samples_t_test <- function(input, output, stats, plotdata) {
   p_obs <- pt(abs(t_obs), df, lower.tail = FALSE)
   if (direction == 1) p_obs <- p_obs * 2
   
-  # Directional constraints
-  if (direction == 2 && t_obs > 0) p_obs <- 1
-  if (direction == 3 && t_obs < 0) p_obs <- 1
+  #If the t-obs is in the wrong direction, make p; 1-p
+  if (direction == 2 && t_obs > 0) p_obs <- 1 - p_obs
+  if (direction == 3 && t_obs < 0) p_obs <- 1 - p_obs
   
   # --------------------------------------------------------------
   # Hypothesis decision

@@ -23,6 +23,7 @@ source("utils/stat_tests/single_sample_z_test.R")
 source("utils/stat_tests/single_sample_t_test.R")
 source("utils/stat_tests/related_samples_t_test.R")
 source("utils/stat_tests/correlation_advanced.R")
+source("utils/stat_tests/independent_samples_t_test.R")
 
 #UI
 ui = UI
@@ -40,7 +41,8 @@ server = function(input, output) {
       '5' = single_sample_z_test,
       '6' = single_sample_t_test,
       '7' = related_samples_t_test,
-      '8' = correlation_advanced
+      '8' = correlation_advanced,
+      '9' = independent_samples_t_test
     )
     
     observeEvent(input$refresh, {

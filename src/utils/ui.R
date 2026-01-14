@@ -12,8 +12,9 @@ UI = function(){
                     "Single Participant Z-Test" = 3,
                     "Single Sample Z-Test" = 5,
                     "Single Sample T-Test" = 6,
-                    'Repeated Samples T-Test' = 7,
-                    'Correlation (Advanced)' = 8
+                    'Related Samples T-Test' = 7,
+                    'Correlation (Advanced)' = 8#,
+                    #'Independent Samples T-Test' = 9
                   ),
                   selected = 1
                 ),

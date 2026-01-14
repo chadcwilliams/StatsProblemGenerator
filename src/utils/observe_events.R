@@ -1,4 +1,4 @@
-observe_events = function(input, output, stats, plotdata){
+observe_events = function(input, output, stats, plotdata, active_test){
   observeEvent(input$answers,
                {
                  output$stats_display <- renderRHandsontable({
@@ -21,10 +21,10 @@ observe_events = function(input, output, stats, plotdata){
                      hot_cols(readOnly = TRUE)
                    
                    # Conditional formatting
-                   if (input$Test == 3) {
+                   if (active_test() == 3) {
                      ht <- ht %>%
                        hot_col("Value", format = "0.0000")
-                   } else if (input$Test %in% c(5, 6, 7)) {
+                   } else if (active_test() %in% c(5, 6, 7)) {
                      ht <- ht %>%
                        hot_col("Value", format = "0.0000")
                    }
@@ -36,18 +36,18 @@ observe_events = function(input, output, stats, plotdata){
   
   observeEvent(input$distribution,
                {
-                 output$distribution_display = renderPlot(if (input$Test == 3) {
+                 output$distribution_display = renderPlot(if (active_test() == 3) {
                    ggplot(aes(x = 1:100, y = data), data = plotdata$data) +
                      geom_line() +
                      geom_vline(xintercept = round((
                        stats$data_table$P_Value_of_X_and_Below * 100
                      )) + .5, color = 'red') +
                      theme_void()
-                 } else if (input$Test == 4 || input$Test == 8) {
+                 } else if (active_test() == 4 || active_test() == 8) {
                    ggplot(aes(x = X, y = Y), data = plotdata$data) +
                      geom_point(size = 4, alpha = .5) +
                      (
-                       if (input$Test == 4)
+                       if (active_test() == 4)
                          list(
                            geom_segment(
                              y = min(plotdata$data$Y),
@@ -64,7 +64,7 @@ observe_events = function(input, output, stats, plotdata){
                      ) +
                      theme_classic() +
                      theme(text = element_text(size = 20))
-                 } else if (input$Test == 7) {
+                 } else if (active_test() == 7) {
                    rng <- range(plotdata$data$data, na.rm = TRUE)
                    ggplot(aes(x = data), data = plotdata$data) +
                      geom_histogram(color = "#E27D60",

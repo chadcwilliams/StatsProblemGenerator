@@ -29,7 +29,7 @@ source("utils/stat_tests/independent_samples_t_test.R")
 ui = UI
 
 #Server
-server = function(input, output) {
+server = function(input, output, session) {
     stats = reactiveValues(data_table = NULL)
     plotdata = reactiveValues(data = NULL)
     
@@ -45,13 +45,29 @@ server = function(input, output) {
       '9' = independent_samples_t_test
     )
     
+    active_test <- reactiveVal(NULL)
+    
+    observeEvent(input$Test_300A, ignoreInit = TRUE, {
+      if (input$Test_300A != "") {
+        updateSelectInput(session, "Test_300B", selected = "")
+        active_test(input$Test_300A)
+      }
+    })
+    
+    observeEvent(input$Test_300B, ignoreInit = TRUE, {
+      if (input$Test_300B != "") {
+        updateSelectInput(session, "Test_300A", selected = "")
+        active_test(input$Test_300B)
+      }
+    })
+    
     observeEvent(input$refresh, {
-      fn = test_fns[[as.character(input$Test)]]
+      fn = test_fns[[active_test()]]
       req(fn)
       fn(input, output, stats, plotdata)
     })
 
-    observe_events(input, output, stats, plotdata)
+    observe_events(input, output, stats, plotdata, active_test)
 }
 
 shinyApp(ui = ui, server = server)

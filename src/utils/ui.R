@@ -3,20 +3,30 @@ UI = function(){
             sidebarLayout(
               sidebarPanel(
                 selectInput(
-                  "Test",
-                  label = " ",
-                  choices = list(
+                  "Test_300A",
+                  label = "Psyc 300A",
+                  choices = c(
+                    " " = "",
                     "Frequency Distribution" = 1,
                     "Descriptives" = 2,
-                    "Correlation & Regression" = 4,
                     "Single Participant Z-Test" = 3,
+                    "Correlation & Regression" = 4,
                     "Single Sample Z-Test" = 5,
-                    "Single Sample T-Test" = 6,
-                    'Related Samples T-Test' = 7,
-                    'Correlation (Advanced)' = 8#,
-                    #'Independent Samples T-Test' = 9
+                    "Single Sample T-Test" = 6
                   ),
-                  selected = 1
+                  selected = ""
+                ),
+                
+                selectInput(
+                  "Test_300B",
+                  label = "Psyc 300B",
+                  choices = c(
+                    " " = "",
+                    "Related Samples T-Test" = 7,
+                    "Correlation (Advanced)" = 8,
+                    "Independent Samples T-Test" = 9
+                  ),
+                  selected = ""
                 ),
                 sliderInput(
                   inputId = 'num_of_participants',

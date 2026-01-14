@@ -128,6 +128,7 @@ independent_samples_t_test <- function(input, output, stats, plotdata) {
     SE_pooled       = round(SE_p, 4),
     t_obs           = round(t_obs, 4),
     p_obs           = round(p_obs, 4),
+    r_squared       = round((t_obs^2) / (t_obs^2 + df), 4),
     H0              = H0,
     H1              = H1
   )

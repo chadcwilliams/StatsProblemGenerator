@@ -19,8 +19,6 @@ correlation_advanced = function(input, output, stats, plotdata) {
   raw_data$X = as.integer(raw_data$X)
   raw_data$Y = as.integer(raw_data$Y)
   plotdata$data = raw_data[, c("X", "Y")]
-  print('HERE')
-  print(plotdata$data)
   
   #Create direction
   dir <- runif(1)
@@ -76,6 +74,8 @@ correlation_advanced = function(input, output, stats, plotdata) {
   statistics$t_obs = statistics$r / statistics$se_r
   statistics$p_obs = pt(abs(statistics$t_obs), df, lower.tail = FALSE)
   if (direction == 1) statistics$p_obs <- statistics$p_obs * 2
+  if (direction == 2 && data$r > 0) statistics$p_obs <- 1 - statistics$p_obs
+  if (direction == 3 && data$r < 0) statistics$p_obs <- 1 - statistics$p_obs
   statistics$r_squared = statistics$r ^ 2
   
   H0 <- if (statistics$p_obs < .05) "Reject" else "Retain"

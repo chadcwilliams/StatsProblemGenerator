@@ -24,6 +24,7 @@ source("utils/stat_tests/single_sample_t_test.R")
 source("utils/stat_tests/related_samples_t_test.R")
 source("utils/stat_tests/correlation_advanced.R")
 source("utils/stat_tests/independent_samples_t_test.R")
+source("utils/stat_tests/power_n.R")
 
 #UI
 ui = UI
@@ -42,7 +43,8 @@ server = function(input, output, session) {
       '6' = single_sample_t_test,
       '7' = related_samples_t_test,
       '8' = correlation_advanced,
-      '9' = independent_samples_t_test
+      '9' = independent_samples_t_test,
+      '10' = power_n
     )
     
     active_test <- reactiveVal(NULL)

@@ -25,7 +25,8 @@ UI = function(){
                     "Related Samples T-Test" = 7,
                     "Correlation (Advanced)" = 8,
                     "Independent Samples T-Test" = 9,
-                    "Power (calculate n)" = 10
+                    "Power (calculate n)" = 10,
+                    "Power (calculate power)" = 11
                   ),
                   selected = ""
                 ),

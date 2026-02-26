@@ -65,8 +65,6 @@ observe_events = function(input, output, stats, plotdata, active_test){
                      theme_classic() +
                      theme(text = element_text(size = 20))
                  } else if (active_test() == 9) {
-                   print('HHHHH')
-                   print(plotdata)
                    rng <- range(
                      c(plotdata$data$Data1, plotdata$data$Data2),
                      na.rm = TRUE
@@ -94,7 +92,29 @@ observe_events = function(input, output, stats, plotdata, active_test){
                      ) +
                      ylab("Frequency Count") +
                      theme_classic()
+                 } else if (active_test() == 12) {
+                   
+                   rng <- range(plotdata$data$Value, na.rm = TRUE)
+                   
+                   ggplot(plotdata$data,
+                          aes(x = Value, fill = Group, colour = Group)) +
+                     
+                     geom_density(
+                       alpha = 0.3,
+                       adjust = 1   # smoothing; increase for smoother curve
+                     ) +
+                     
+                     scale_x_continuous(
+                       breaks = floor(rng[1]) : ceiling(rng[2]),
+                       limits = c(floor(rng[1]) - 1,
+                                  ceiling(rng[2]) + 1),
+                       name = "Values"
+                     ) +
+                     
+                     ylab("Density") +
+                     theme_classic()
                  }
+                 
                  else{
                    ggplot(aes(x = data), data = plotdata$data) +
                      geom_histogram(color = "#E27D60",

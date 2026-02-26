@@ -26,7 +26,8 @@ UI = function(){
                     "Correlation (Advanced)" = 8,
                     "Independent Samples T-Test" = 9,
                     "Power (calculate n)" = 10,
-                    "Power (calculate power)" = 11
+                    "Power (calculate power)" = 11,
+                    "One-Way ANOVA" = 12
                   ),
                   selected = ""
                 ),

@@ -228,7 +228,7 @@ multiple_comparisons <- function(input, output, stats, plotdata) {
     comp <- planned_comparisons[[i]]
     group1 <- comp[1]
     group2 <- comp[2]
-    mean_diff <- round(abs(mean_vec[group1] - mean_vec[group2]), 4)
+    mean_diff <- round(mean_vec[group1] - mean_vec[group2], 4)
     mean_significance = if (abs(mean_diff) > abs(dunns_t)) ", (p < .05)" else ", (p > .05)"
     planned_label = paste0("Group ", group1, " vs. Group ", group2)
     statistics[[planned_label]] <- paste0(mean_diff, mean_significance)
@@ -258,30 +258,27 @@ multiple_comparisons <- function(input, output, stats, plotdata) {
     
     pc_table = read.csv(paste0("materials/", pc_filename), header = TRUE)
     df_row = which.min(abs(pc_table$df - df_within))
-    pc_crit <- dunns_table[df_row, k]
+    if (post_hoc_test == "Fisher's LSD") {
+      pc_crit <- pc_table[df_row, "t_critical_two_tailed_0.05"]
+    } else {
+      pc_crit <- pc_table[df_row, paste0("comparisons_", k)]
+        
+    }
     
     pc_t = round(mult * MS_within, 4)
     pc_t = round(pc_t/n_per_group, 4)
     pc_t = round(sqrt(pc_t), 4)
     pc_t = round(pc_crit * pc_t, 4)
-    
-    print('planned')
-    print(k)
+
     all_pairs <- combn(1:k, 2, simplify = FALSE)
-    print('all pairs')
-    print(all_pairs)
     pair_key <- function(x) paste(sort(x), collapse = "_")
     all_keys <- sapply(all_pairs, pair_key)
     planned_keys <- sapply(planned_comparisons, pair_key)
-    print('planned keys')
-    print(planned_keys)
     remaining_pairs <- all_pairs[!all_keys %in% planned_keys]  
-    print('remaining')
-    print(remaining_pairs)
   
     statistics$POST_HOC_COMPARISONS <- ""
     statistics$Post_hoc_test <- post_hoc_test
-    statistics$crit_mean_value <- pc_t
+    statistics$crit_diff_value <- pc_t
     
     for (i in seq_along(remaining_pairs)) {
       
@@ -289,12 +286,12 @@ multiple_comparisons <- function(input, output, stats, plotdata) {
       group1 <- comp[1]
       group2 <- comp[2]
       
-      mean_diff <- round(abs(mean_vec[group1] - mean_vec[group2]), 4)
+      mean_diff <- round(mean_vec[group1] - mean_vec[group2], 4)
       
-      mean_significance <- if (mean_diff > abs(pc_t)) {
-        ", (p < .05)"
+      mean_significance <- if (abs(mean_diff) > abs(pc_t)) {
+        " (p < .05)"
       } else {
-        ", (p > .05)"
+        " (p > .05)"
       }
       comparison_label <- paste0("Group ", group1, " vs. Group ", group2)
       statistics[[comparison_label]] <- paste0(mean_diff, mean_significance)

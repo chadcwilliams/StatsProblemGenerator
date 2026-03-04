@@ -27,7 +27,8 @@ UI = function(){
                     "Independent Samples T-Test" = 9,
                     "Power (calculate n)" = 10,
                     "Power (calculate power)" = 11,
-                    "One-Way ANOVA" = 12
+                    "One-Way ANOVA" = 12,
+                    "Multiple Comparisons" = 13
                   ),
                   selected = ""
                 ),
@@ -54,11 +55,18 @@ UI = function(){
                 actionButton('answers', 'Show Answers')
               ),
               mainPanel(fluidRow(
-                column(6, rHandsontableOutput("data_display")),
-                column(6, plotOutput('distribution_display'))
+                column(12, rHandsontableOutput("data_display"))
               ),
-              fluidRow(column(
-                12, rHandsontableOutput("stats_display")
-              )))
+              
+              # Row 2: Plot
+              fluidRow(
+                column(12, plotOutput('distribution_display'))
+              ),
+              
+              # Row 3: Answers / stats
+              fluidRow(
+                column(12, rHandsontableOutput("stats_display"))
+              )
+              )
             ))
 }

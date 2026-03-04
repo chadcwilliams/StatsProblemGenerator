@@ -92,7 +92,7 @@ observe_events = function(input, output, stats, plotdata, active_test){
                      ) +
                      ylab("Frequency Count") +
                      theme_classic()
-                 } else if (active_test() == 12) {
+                 } else if (active_test() == 12 || active_test() == 13) {
                    
                    rng <- range(plotdata$data$Value, na.rm = TRUE)
                    

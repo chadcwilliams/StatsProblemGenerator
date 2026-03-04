@@ -27,6 +27,7 @@ source("utils/stat_tests/independent_samples_t_test.R")
 source("utils/stat_tests/power_n.R")
 source("utils/stat_tests/power_power.R")
 source("utils/stat_tests/one_way_anova.R")
+source("utils/stat_tests/multiple_comparisons.R")
 
 #UI
 ui = UI
@@ -48,7 +49,8 @@ server = function(input, output, session) {
       '9' = independent_samples_t_test,
       '10' = power_n,
       '11' = power_power,
-      '12' = one_way_anova
+      '12' = one_way_anova,
+      '13' = multiple_comparisons
     )
     
     active_test <- reactiveVal(NULL)

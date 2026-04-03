@@ -28,7 +28,8 @@ UI = function(){
                     "Power (calculate n)" = 10,
                     "Power (calculate power)" = 11,
                     "One-Way ANOVA" = 12,
-                    "Multiple Comparisons" = 13
+                    "Multiple Comparisons" = 13,
+                    "Multifactorial ANOVA" = 14
                   ),
                   selected = ""
                 ),

@@ -29,7 +29,8 @@ UI = function(){
                     "Power (calculate power)" = 11,
                     "One-Way ANOVA" = 12,
                     "Multiple Comparisons" = 13,
-                    "Multifactorial ANOVA" = 14
+                    "Multifactorial ANOVA" = 14,
+                    "Chi-Squared (Goodness of Fit)" = 15
                   ),
                   selected = ""
                 ),

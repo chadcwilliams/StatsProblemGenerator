@@ -23,6 +23,21 @@ observe_events = function(input, output, stats, plotdata, active_test){
                        hot_col("F", format = "0.0000") %>%
                        hot_col("p", format = "0.0000")
                      
+                   } else if (active_test() == 15) {
+                     
+                     # Show full chi-square answer table
+                     tbl <- stats$data_table
+                     
+                     ht <- rhandsontable(
+                       tbl,
+                       rowHeaders = FALSE,
+                       width = "100%",
+                       useTypes = FALSE
+                     ) %>%
+                       hot_table(stretchH = "all", highlightRow = TRUE) %>%
+                       hot_context_menu(FALSE) %>%
+                       hot_cols(readOnly = TRUE)
+                     
                    } else {
                      
                      # Original behavior
@@ -145,7 +160,6 @@ observe_events = function(input, output, stats, plotdata, active_test){
                      
                    } else if (active_test() == 14) {
                      
-                     # Grouped bar plot (pale colors, y starts at 0)
                      summary_data <- plotdata$data %>%
                        dplyr::group_by(A, B) %>%
                        dplyr::summarise(
@@ -160,20 +174,42 @@ observe_events = function(input, output, stats, plotdata, active_test){
                          width = 0.7,
                          color = "black"
                        ) +
-                       
                        scale_y_continuous(
                          limits = c(0, NA),
                          expand = c(0, 0)
                        ) +
-                       
                        scale_fill_manual(
                          values = c("#A7C7E7", "#F6C6A8")
                        ) +
-                       
                        labs(
                          x = "Factor A",
                          y = "Mean Value",
                          fill = "Factor B"
+                       ) +
+                       theme_classic() +
+                       theme(text = element_text(size = 18))
+                     
+                   } else if (active_test() == 15) {
+                     
+                     # Chi-square: Observed vs Expected
+                     plot_df <- plotdata$data
+                     
+                     ggplot(plot_df, aes(x = Category)) +
+                       
+                       geom_bar(aes(y = Observed, fill = "Observed"),
+                                stat = "identity",
+                                position = position_dodge(width = 0.8),
+                                width = 0.7,
+                                color = "black") +
+                       
+                       scale_fill_manual(
+                         values = c("Observed" = "#E27D60")
+                       ) +
+                       
+                       labs(
+                         x = "Category",
+                         y = "Frequency",
+                         fill = ""
                        ) +
                        
                        theme_classic() +
@@ -196,6 +232,7 @@ observe_events = function(input, output, stats, plotdata, active_test){
                    }
                  )
                })
+  
   observeEvent(input$refresh, {
     output$stats_display <- renderRHandsontable({
       NULL

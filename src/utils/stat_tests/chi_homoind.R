@@ -63,7 +63,7 @@ chi_squared_homoind <- function(input, output, stats, plotdata) {
   # --------------------------------------------------------------
   # Phi
   # --------------------------------------------------------------
-  phi <- round(sqrt(round(chi_sq / N, 4)), 4)
+  phi <- round(sqrt(chi_sq / N), 4)
   
   # --------------------------------------------------------------
   # p-value lookup
@@ -121,13 +121,13 @@ chi_squared_homoind <- function(input, output, stats, plotdata) {
   colnames(data_wide)[-1] <- col_names
   
   # --------------------------------------------------------------
-  # FORMATTED MATRIX
+  # FORMATTED MATRIX (O (E))
   # --------------------------------------------------------------
   formatted_matrix <- matrix(
     paste0(
       observed_matrix,
       " (",
-      format(expected, nsmall = 2),
+      format(expected, nsmall = 4),
       ")"
     ),
     nrow = 2
@@ -150,13 +150,13 @@ chi_squared_homoind <- function(input, output, stats, plotdata) {
   # ANSWER TABLE
   # --------------------------------------------------------------
   answer_table <- data.frame(
-    Statistic = c("Group 1", "Group 2", "Column Sums", "Chi-square", "p-value", "Phi"),
+    Statistic = c("Group 1", "Group 2", "Column Sums", "Chi-square", "Phi", "p-value"),
     rbind(
       formatted_with_row_totals,
       col_totals_row,
       c(as.character(chi_sq), rep("", k)),
-      c(p_display, rep("", k)),
-      c(as.character(phi), rep("", k))
+      c(as.character(phi), rep("", k)),
+      c(p_display, rep("", k))
     ),
     stringsAsFactors = FALSE
   )
@@ -166,30 +166,23 @@ chi_squared_homoind <- function(input, output, stats, plotdata) {
   stats$data_table <- answer_table
   
   # --------------------------------------------------------------
-  # PLOT DATA
+  # ✅ FIXED PLOT DATA (THIS WAS THE BUG)
   # --------------------------------------------------------------
   plotdata$data <- data.frame(
-    Category = rep(col_names, each = 2),
-    Group = factor(rep(c("Group 1", "Group 2"), times = k)),
-    Count = as.vector(t(observed_matrix))
+    Category = rep(col_names, times = 2),
+    Group    = rep(c("Group 1", "Group 2"), each = k),
+    Count    = c(observed_matrix[1, ], observed_matrix[2, ])
   )
   
+  plotdata$data$Category <- factor(plotdata$data$Category, levels = col_names)
+  plotdata$data$Group <- factor(plotdata$data$Group, levels = c("Group 1", "Group 2"))
+  
   # --------------------------------------------------------------
-  # OUTPUTS
+  # DATA DISPLAY ONLY (NO ANSWERS SHOWN HERE)
   # --------------------------------------------------------------
   output$data_display <- renderRHandsontable({
     rhandsontable(data_wide, rowHeaders = FALSE, width = "100%") %>%
       hot_table(stretchH = "all") %>%
       hot_cols(readOnly = TRUE)
-  })
-  
-  output$stats_display <- renderRHandsontable({
-    rhandsontable(answer_table, rowHeaders = FALSE, width = "100%") %>%
-      hot_table(stretchH = "all") %>%
-      hot_cols(readOnly = TRUE)
-  })
-  
-  output$distribution_display <- renderPlot({
-
   })
 }

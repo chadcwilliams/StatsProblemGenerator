@@ -7,14 +7,11 @@ chi_squared_homoind <- function(input, output, stats, plotdata) {
   repeat {
     
     # --------------------------------------------------------------
-    # Columns (3–6), rows fixed at 2
+    # Setup
     # --------------------------------------------------------------
-    k <- sample(2:5, 1)
+    k <- sample(3:6, 1)
     r <- 2
     
-    # --------------------------------------------------------------
-    # Total sample size (biased toward clean decimals)
-    # --------------------------------------------------------------
     N <- sample(c(100, 150, 200, 250, 300, 350, 400, 450, 500), 1)
     
     # --------------------------------------------------------------
@@ -30,7 +27,7 @@ chi_squared_homoind <- function(input, output, stats, plotdata) {
     probs <- probs / sum(probs)
     
     # --------------------------------------------------------------
-    # Observed counts
+    # Observed data
     # --------------------------------------------------------------
     row1 <- as.vector(rmultinom(1, row1_total, probs))
     row2 <- as.vector(rmultinom(1, row2_total, probs))
@@ -50,8 +47,6 @@ chi_squared_homoind <- function(input, output, stats, plotdata) {
     # --------------------------------------------------------------
     if (any(expected < 5)) next
     if (any(observed_matrix < 5)) next
-    
-    # Ensure clean decimals (≤ 2 decimal places naturally)
     if (!check_decimals(expected)) next
     
     break
@@ -66,7 +61,12 @@ chi_squared_homoind <- function(input, output, stats, plotdata) {
   df <- (r - 1) * (k - 1)
   
   # --------------------------------------------------------------
-  # p-value (table lookup)
+  # Phi
+  # --------------------------------------------------------------
+  phi <- round(sqrt(round(chi_sq / N, 4)), 4)
+  
+  # --------------------------------------------------------------
+  # p-value lookup
   # --------------------------------------------------------------
   chi_table <- list(
     "1" = c("0.50"=0.4549,"0.40"=0.7083,"0.30"=1.0742,"0.20"=1.6424,"0.10"=2.7055,"0.05"=3.8415,"0.02"=5.4119,"0.01"=6.6349,"0.005"=7.8794,"0.001"=10.8276),
@@ -105,12 +105,12 @@ chi_squared_homoind <- function(input, output, stats, plotdata) {
   }
   
   # --------------------------------------------------------------
-  # Column names
+  # Labels
   # --------------------------------------------------------------
   col_names <- paste("Category", 1:k)
   
   # --------------------------------------------------------------
-  # DATA TABLE (Observed only)
+  # DATA TABLE (students see)
   # --------------------------------------------------------------
   data_wide <- data.frame(
     Group = c("Group 1", "Group 2"),
@@ -121,7 +121,7 @@ chi_squared_homoind <- function(input, output, stats, plotdata) {
   colnames(data_wide)[-1] <- col_names
   
   # --------------------------------------------------------------
-  # FORMATTED MATRIX (O (E))
+  # FORMATTED MATRIX
   # --------------------------------------------------------------
   formatted_matrix <- matrix(
     paste0(
@@ -139,36 +139,28 @@ chi_squared_homoind <- function(input, output, stats, plotdata) {
   row_totals <- rowSums(observed_matrix)
   col_totals <- colSums(observed_matrix)
   
-  # --------------------------------------------------------------
-  # Add row totals (as last column)
-  # --------------------------------------------------------------
   formatted_with_row_totals <- cbind(
     formatted_matrix,
     as.character(row_totals)
   )
   
-  # --------------------------------------------------------------
-  # Column totals row (plus grand total)
-  # --------------------------------------------------------------
-  col_totals_row <- c(as.character(col_totals), as.character(sum(row_totals)))
+  col_totals_row <- c(as.character(col_totals), as.character(N))
   
   # --------------------------------------------------------------
-  # Build full table
+  # ANSWER TABLE
   # --------------------------------------------------------------
   answer_table <- data.frame(
-    Statistic = c("Group 1", "Group 2", "Column Sums", "Chi-square", "p-value"),
+    Statistic = c("Group 1", "Group 2", "Column Sums", "Chi-square", "p-value", "Phi"),
     rbind(
       formatted_with_row_totals,
       col_totals_row,
       c(as.character(chi_sq), rep("", k)),
-      c(p_display, rep("", k))
+      c(p_display, rep("", k)),
+      c(as.character(phi), rep("", k))
     ),
     stringsAsFactors = FALSE
   )
   
-  # --------------------------------------------------------------
-  # Column names (add Total column)
-  # --------------------------------------------------------------
   colnames(answer_table)[-1] <- c(col_names, "Row Sums")
   
   stats$data_table <- answer_table

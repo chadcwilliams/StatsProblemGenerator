@@ -30,7 +30,8 @@ UI = function(){
                     "One-Way ANOVA" = 12,
                     "Multiple Comparisons" = 13,
                     "Multifactorial ANOVA" = 14,
-                    "Chi-Squared (Goodness of Fit)" = 15
+                    "Chi-Squared (Goodness of Fit)" = 15,
+                    "Chi-Squared (Homogeneity & Independence)" = 16
                   ),
                   selected = ""
                 ),

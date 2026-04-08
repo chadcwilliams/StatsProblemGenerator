@@ -6,7 +6,6 @@ observe_events = function(input, output, stats, plotdata, active_test){
                    
                    if (active_test() == 14) {
                      
-                     # Show full ANOVA table
                      tbl <- stats$data_table
                      
                      ht <- rhandsontable(
@@ -23,9 +22,9 @@ observe_events = function(input, output, stats, plotdata, active_test){
                        hot_col("F", format = "0.0000") %>%
                        hot_col("p", format = "0.0000")
                      
-                   } else if (active_test() == 15) {
+                   } else if (active_test() == 15 || active_test() == 16) {
                      
-                     # Show full chi-square answer table
+                     # Chi-square (GOF + Homogeneity/Independence)
                      tbl <- stats$data_table
                      
                      ht <- rhandsontable(
@@ -40,7 +39,6 @@ observe_events = function(input, output, stats, plotdata, active_test){
                      
                    } else {
                      
-                     # Original behavior
                      tbl <- as.data.frame(t(stats$data_table[1, ]))
                      tbl$Statistic <- rownames(tbl)
                      rownames(tbl) <- NULL
@@ -58,11 +56,9 @@ observe_events = function(input, output, stats, plotdata, active_test){
                        hot_cols(readOnly = TRUE)
                      
                      if (active_test() == 3) {
-                       ht <- ht %>%
-                         hot_col("Value", format = "0.0000")
+                       ht <- ht %>% hot_col("Value", format = "0.0000")
                      } else if (active_test() %in% c(5, 6, 7)) {
-                       ht <- ht %>%
-                         hot_col("Value", format = "0.0000")
+                       ht <- ht %>% hot_col("Value", format = "0.0000")
                      }
                    }
                    
@@ -114,24 +110,13 @@ observe_events = function(input, output, stats, plotdata, active_test){
                      )
                      
                      ggplot(plotdata$data) +
-                       geom_histogram(
-                         aes(x = Data1),
-                         fill = "#E27D60",
-                         color = "#E27D60",
-                         alpha = 0.5,
-                         binwidth = 1
-                       ) +
-                       geom_histogram(
-                         aes(x = Data2),
-                         fill = "#85DCB0",
-                         color = "#85DCB0",
-                         alpha = 0.5,
-                         binwidth = 1
-                       ) +
+                       geom_histogram(aes(x = Data1),
+                                      fill = "#E27D60", alpha = 0.5, binwidth = 1) +
+                       geom_histogram(aes(x = Data2),
+                                      fill = "#85DCB0", alpha = 0.5, binwidth = 1) +
                        scale_x_continuous(
                          breaks = floor(rng[1]) : ceiling(rng[2]),
-                         limits = c(floor(rng[1]) - 1, ceiling(rng[2]) + 1),
-                         name = "Values"
+                         limits = c(floor(rng[1]) - 1, ceiling(rng[2]) + 1)
                        ) +
                        ylab("Frequency Count") +
                        theme_classic()
@@ -142,19 +127,12 @@ observe_events = function(input, output, stats, plotdata, active_test){
                      
                      ggplot(plotdata$data,
                             aes(x = Value, fill = Group, colour = Group)) +
-                       
-                       geom_density(
-                         alpha = 0.3,
-                         adjust = 1
-                       ) +
-                       
+                       geom_density(alpha = 0.3) +
                        scale_x_continuous(
                          breaks = floor(rng[1]) : ceiling(rng[2]),
                          limits = c(floor(rng[1]) - 1,
-                                    ceiling(rng[2]) + 1),
-                         name = "Values"
+                                    ceiling(rng[2]) + 1)
                        ) +
-                       
                        ylab("Density") +
                        theme_classic()
                      
@@ -162,54 +140,42 @@ observe_events = function(input, output, stats, plotdata, active_test){
                      
                      summary_data <- plotdata$data %>%
                        dplyr::group_by(A, B) %>%
-                       dplyr::summarise(
-                         Mean = mean(Value),
-                         .groups = "drop"
-                       )
+                       dplyr::summarise(Mean = mean(Value), .groups = "drop")
                      
                      ggplot(summary_data, aes(x = A, y = Mean, fill = B)) +
+                       geom_bar(stat = "identity",
+                                position = position_dodge(width = 0.8)) +
+                       theme_classic()
+                     
+                   } else if (active_test() == 15) {
+                     
+                     ggplot(plotdata$data, aes(x = Category)) +
+                       geom_bar(aes(y = Observed),
+                                stat = "identity",
+                                fill = "#E27D60") +
+                       theme_classic()
+                     
+                   } else if (active_test() == 16) {
+                     
+                     # NEW: Chi-square homogeneity / independence
+                     ggplot(plotdata$data,
+                            aes(x = Category, y = Count, fill = Group)) +
+                       
                        geom_bar(
                          stat = "identity",
                          position = position_dodge(width = 0.8),
                          width = 0.7,
                          color = "black"
                        ) +
-                       scale_y_continuous(
-                         limits = c(0, NA),
-                         expand = c(0, 0)
-                       ) +
-                       scale_fill_manual(
-                         values = c("#A7C7E7", "#F6C6A8")
-                       ) +
-                       labs(
-                         x = "Factor A",
-                         y = "Mean Value",
-                         fill = "Factor B"
-                       ) +
-                       theme_classic() +
-                       theme(text = element_text(size = 18))
-                     
-                   } else if (active_test() == 15) {
-                     
-                     # Chi-square: Observed vs Expected
-                     plot_df <- plotdata$data
-                     
-                     ggplot(plot_df, aes(x = Category)) +
-                       
-                       geom_bar(aes(y = Observed, fill = "Observed"),
-                                stat = "identity",
-                                position = position_dodge(width = 0.8),
-                                width = 0.7,
-                                color = "black") +
                        
                        scale_fill_manual(
-                         values = c("Observed" = "#E27D60")
+                         values = c("#E27D60", "#85DCB0")
                        ) +
                        
                        labs(
                          x = "Category",
                          y = "Frequency",
-                         fill = ""
+                         fill = "Group"
                        ) +
                        
                        theme_classic() +
@@ -221,21 +187,12 @@ observe_events = function(input, output, stats, plotdata, active_test){
                        geom_histogram(color = "#E27D60",
                                       fill = "#E8A87C",
                                       binwidth = 1) +
-                       scale_x_continuous(
-                         breaks = 1:input$value_range[2],
-                         limits = c(input$value_range[1] - 1,
-                                    input$value_range[2] + 1),
-                         name = 'X Values'
-                       ) +
-                       ylab('Frequency Count') +
                        theme_classic()
                    }
                  )
                })
   
   observeEvent(input$refresh, {
-    output$stats_display <- renderRHandsontable({
-      NULL
-    })
+    output$stats_display <- renderRHandsontable({ NULL })
   })
 }

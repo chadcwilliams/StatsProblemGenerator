@@ -30,6 +30,7 @@ source("utils/stat_tests/one_way_anova.R")
 source("utils/stat_tests/multiple_comparisons.R")
 source("utils/stat_tests/factorial_anova.R")
 source("utils/stat_tests/chi_goodness.R")
+source("utils/stat_tests/chi_homoind.R")
 
 #UI
 ui = UI
@@ -54,7 +55,8 @@ server = function(input, output, session) {
       '12' = one_way_anova,
       '13' = multiple_comparisons,
       '14' = factorial_anova,
-      '15' = chi_squared_goodness
+      '15' = chi_squared_goodness,
+      '16' = chi_squared_homoind
     )
     
     active_test <- reactiveVal(NULL)

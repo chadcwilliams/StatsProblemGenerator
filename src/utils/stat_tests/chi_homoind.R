@@ -190,9 +190,6 @@ chi_squared_homoind <- function(input, output, stats, plotdata) {
   })
   
   output$distribution_display <- renderPlot({
-    ggplot(plotdata$data,
-           aes(x = Category, y = Count, fill = Group)) +
-      geom_bar(stat = "identity", position = "dodge") +
-      theme_classic()
+
   })
 }

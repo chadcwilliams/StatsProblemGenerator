@@ -35,6 +35,11 @@ single_participant_z_test = function(input, output, stats, plotdata) {
       round((data$X - data$mu) / data$sigma, digits = 2), lower.tail = F
     ), digits = 4)
   )
+  #Round all numeric columns to 4 decimal places max
+  descriptives[] = lapply(descriptives, function(col) {
+    if (is.numeric(col)) round(col, 4) else col
+  })
+  
   #Set Outputs
   stats$data_table = descriptives
   stats$p_value = descriptives$P_Value_of_X_and_Below  # used by the distribution plot

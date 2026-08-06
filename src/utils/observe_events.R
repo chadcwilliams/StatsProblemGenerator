@@ -22,9 +22,9 @@ observe_events = function(input, output, stats, plotdata, active_test){
                        hot_col("F", format = "0.0000") %>%
                        hot_col("p", format = "0.0000")
                      
-                   } else if (active_test() == 15 || active_test() == 16) {
+                   } else if (active_test() == 1 || active_test() == 15 || active_test() == 16) {
                      
-                     # Chi-square (GOF + Homogeneity/Independence)
+                     # Frequency Distribution + Chi-square (GOF + Homogeneity/Independence)
                      tbl <- stats$data_table
                      
                      ht <- rhandsontable(

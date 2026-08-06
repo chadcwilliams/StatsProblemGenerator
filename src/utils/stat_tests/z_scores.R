@@ -26,7 +26,28 @@ z_scores = function(input, output, stats, plotdata) {
   #Set Outputs
   stats$data_table = descriptives
   stats$p_value = round(pnorm(z), digits = 4)  # kept separate, used only for plotting
-  output$data_display = renderRHandsontable(rhandsontable(as.data.frame(t(data))))
+  output$data_display = renderRHandsontable({
+    
+    tbl <- as.data.frame(t(data))
+    tbl$Variable <- rownames(tbl)
+    rownames(tbl) <- NULL
+    
+    tbl <- tbl[, c("Variable", setdiff(names(tbl), "Variable"))]
+    names(tbl)[2] <- "Value"
+    
+    rhandsontable(
+      tbl,
+      rowHeaders = FALSE,
+      colHeaders = c("Variable", "Value"),
+      width = "100%"
+    ) %>%
+      hot_col(1, readOnly = TRUE) %>%
+      hot_table(
+        stretchH = "all",
+        highlightRow = TRUE
+      ) %>%
+      hot_cols(halign = "htLeft", valign = "htMiddle")
+  })
   output$stats_display = renderRHandsontable({
     
   })

@@ -39,7 +39,7 @@ observe_events = function(input, output, stats, plotdata, active_test){
                      
                    } else {
                      
-                     tbl <- as.data.frame(t(stats$data_table[1, ]))
+                     tbl <- as.data.frame(t(stats$data_table[1, , drop = FALSE]))
                      tbl$Statistic <- rownames(tbl)
                      rownames(tbl) <- NULL
                      tbl <- tbl[, c("Statistic", names(tbl)[1])]

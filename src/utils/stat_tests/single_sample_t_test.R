@@ -13,9 +13,10 @@ single_sample_t_test = function(input, output, stats, plotdata) {
       rep(NA, input$num_of_participants - 1)
     )
   )
-  data$mu[1] = (round(rnorm(
-    1, mean(data$Data), sd(data$Data) / 2.5
-  )))
+  effect_size = runif(1, 0.10, 0.75)          # distance in SDs
+  direction_sign = sample(c(-1, 1), 1)     # push mu up or down randomly
+  data$mu[1] = round(mean(data$Data) + direction_sign * effect_size * sd(data$Data))
+  
   data$SS = sum(((data$Data - mean(data$Data))^2))
   dir = runif(1)
   if (dir < .5) {
@@ -36,7 +37,15 @@ single_sample_t_test = function(input, output, stats, plotdata) {
   data$p_alpha = c(.05, rep(NA, input$num_of_participants - 1))
   data$X_Mean = c(mean(data$Data),
                   rep(NA, input$num_of_participants - 1))
-  plotdata$data = as.data.frame(data$Data)
+  
+  plotdata$data = data.frame(
+    Group = factor(
+      c("Population (\u03bc)", "Sample (x\u0304 & SD)"),
+      levels = c("Population (\u03bc)", "Sample (x\u0304 & SD)")
+    ),
+    Mean = c(data$mu[1], data$X_Mean[1]),
+    SD = c(NA, sd(data$Data))
+  )
   
   #Create Stats
   t=if (direction == 1){t.test(data$Data,mu=data$mu[1])
@@ -64,14 +73,14 @@ single_sample_t_test = function(input, output, stats, plotdata) {
     descriptives$H0 = if (descriptives$p_obs < .05){'Reject'}else{'Retain'}
     descriptives$H1 = if (descriptives$p_obs < .05){'Accept'}else{'Suspend'}}
   else if (direction == 2){
-    if (descriptives$t_Obs<0){
+    if (descriptives$t_obs<0){
       descriptives$H0 = if (descriptives$p_obs < .05){'Reject'}else{'Retain'}
       descriptives$H1 = if (descriptives$p_obs < .05){'Accept'}else{'Suspend'}}
     else{
       descriptives$H0 = 'Retain'
       descriptives$H1 = 'Suspend'}
   } else {
-    if (descriptives$t_Obs>0){
+    if (descriptives$t_obs>0){
       descriptives$H0 = if (descriptives$p_obs < .05){'Reject'}else{'Retain'}
       descriptives$H1 = if (descriptives$p_obs < .05){'Accept'}else{'Suspend'}}
     else{

@@ -13,9 +13,11 @@ single_sample_z_test = function(input, output, stats, plotdata) {
       rep(NA, input$num_of_participants - 1)
     )
   )
-  data$mu[1] = (round(rnorm(
-    1, mean(data$Data), sd(data$Data) / 5
-  )))
+  
+  effect_size = runif(1, 0.10, 0.75)          # distance in SDs
+  direction_sign = sample(c(-1, 1), 1)     # push mu up or down randomly
+  data$mu[1] = round(mean(data$Data) + direction_sign * effect_size * sd(data$Data), 1)
+  
   data$sigma = c((round(runif(1, 0.5, 2.5),2)),
                  rep(NA, input$num_of_participants - 1))
   dir = runif(1)
@@ -34,15 +36,24 @@ single_sample_z_test = function(input, output, stats, plotdata) {
   }
   
   data$p_alpha = c(.05, rep(NA, input$num_of_participants - 1))
-  data$X_Mean = c(mean(data$Data),
+  data$X_Mean = c(round(mean(data$Data), 1),
                   rep(NA, input$num_of_participants - 1))
-  plotdata$data = as.data.frame(data$Data)
+  
+  plotdata$data = data.frame(
+    Group = factor(
+      c("Population (\u03bc & \u03c3)", "Sample (x\u0304)"),
+      levels = c("Population (\u03bc & \u03c3)", "Sample (x\u0304)")
+    ),
+    Mean = c(data$mu[1], data$X_Mean[1]),
+    Sigma = c(data$sigma[1], NA)
+  )
+  
   #Create Stats
   descriptives = data_table = data.frame(
     SE = data$sigma[1] / sqrt(input$num_of_participants),
-    z_Obs = (data$X_Mean[1] - data$mu[1]) / (data$sigma[1] /
+    z_obs = (data$X_Mean[1] - data$mu[1]) / (data$sigma[1] /
                                                sqrt(input$num_of_participants)),
-    z_Crit = if (direction == 1) {
+    z_crit = if (direction == 1) {
       '+-1.96'
     } else if (direction == 2) {
       '-1.645'
@@ -50,23 +61,28 @@ single_sample_z_test = function(input, output, stats, plotdata) {
       '+1.645'
     }
   )
-  descriptives$p_obs = pnorm(round((data$X_Mean[1] - data$mu[1]) / (data$sigma[1] / sqrt(input$num_of_participants)),4))
-  if (descriptives$z_Obs>=0){descriptives$p_obs=1-descriptives$p_obs}
-  if (direction == 1) {descriptives$p_obs=descriptives$p_obs*2}
+  
+  descriptives$p_obs = if (direction == 1) {
+    2 * pnorm(-abs(descriptives$z_obs))
+  } else if (direction == 2) {
+    pnorm(descriptives$z_obs)
+  } else {
+    pnorm(descriptives$z_obs, lower.tail = FALSE)
+  }
   
   descriptives$p_alpha = .05
   if (direction == 1){
     descriptives$H0 = if (descriptives$p_obs < .05){'Reject'}else{'Retain'}
     descriptives$H1 = if (descriptives$p_obs < .05){'Accept'}else{'Suspend'}}
   else if (direction == 2){
-    if (descriptives$z_Obs<0){
+    if (descriptives$z_obs<0){
       descriptives$H0 = if (descriptives$p_obs < .05){'Reject'}else{'Retain'}
       descriptives$H1 = if (descriptives$p_obs < .05){'Accept'}else{'Suspend'}}
     else{
       descriptives$H0 = 'Retain'
       descriptives$H1 = 'Suspend'}
   } else {
-    if (descriptives$z_Obs>0){
+    if (descriptives$z_obs>0){
       descriptives$H0 = if (descriptives$p_obs < .05){'Reject'}else{'Retain'}
       descriptives$H1 = if (descriptives$p_obs < .05){'Accept'}else{'Suspend'}}
     else{

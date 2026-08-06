@@ -102,6 +102,38 @@ observe_events = function(input, output, stats, plotdata, active_test){
                        theme_classic() +
                        theme(text = element_text(size = 20))
                      
+                   } else if (active_test() == 5) {
+                     
+                     ggplot(plotdata$data, aes(x = Group, y = Mean, fill = Group)) +
+                       geom_bar(stat = "identity", width = 0.6, color = "black") +
+                       geom_errorbar(
+                         aes(ymin = Mean - Sigma, ymax = Mean + Sigma),
+                         width = 0.1,
+                         na.rm = TRUE
+                       ) +
+                       scale_fill_manual(values = c("#E27D60", "#85DCB0")) +
+                       scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
+                       ylab("Value") +
+                       xlab(" ") +
+                       theme_classic() +
+                       theme(text = element_text(size = 18), legend.position = "none")
+                     
+                   } else if (active_test() == 6) {
+                     
+                     ggplot(plotdata$data, aes(x = Group, y = Mean, fill = Group)) +
+                       geom_bar(stat = "identity", width = 0.6, color = "black") +
+                       geom_errorbar(
+                         aes(ymin = Mean - SD, ymax = Mean + SD),
+                         width = 0.1,
+                         na.rm = TRUE
+                       ) +
+                       scale_fill_manual(values = c("#E27D60", "#85DCB0")) +
+                       scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
+                       ylab("Value") +
+                       xlab(" ") +
+                       theme_classic() +
+                       theme(text = element_text(size = 18), legend.position = "none")
+                     
                    } else if (active_test() == 9) {
                      
                      rng <- range(

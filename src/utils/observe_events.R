@@ -70,12 +70,12 @@ observe_events = function(input, output, stats, plotdata, active_test){
                {
                  output$distribution_display = renderPlot(
                    
-                   if (active_test() == 3) {
+                   if (active_test() == 3 || active_test() == 17) {
                      
                      ggplot(aes(x = 1:100, y = data), data = plotdata$data) +
                        geom_line() +
                        geom_vline(xintercept = round((
-                         stats$data_table$P_Value_of_X_and_Below * 100
+                         stats$p_value * 100
                        )) + .5, color = 'red') +
                        theme_void()
                      

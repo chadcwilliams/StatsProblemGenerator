@@ -17,8 +17,9 @@ source("utils/ui.R")
 source("utils/observe_events.R")
 source("utils/stat_tests/freq_distribution.R")
 source("utils/stat_tests/descriptives.R")
-source("utils/stat_tests/single_participant_z_test.R")
 source("utils/stat_tests/correlation_regression.R")
+source("utils/stat_tests/z_scores.R")
+source("utils/stat_tests/single_participant_z_test.R")
 source("utils/stat_tests/single_sample_z_test.R")
 source("utils/stat_tests/single_sample_t_test.R")
 source("utils/stat_tests/related_samples_t_test.R")
@@ -45,6 +46,7 @@ server = function(input, output, session) {
       '2' = descriptives,
       '3' = single_participant_z_test,
       '4' = correlation_regression,
+      '17' = z_scores,
       '5' = single_sample_z_test,
       '6' = single_sample_t_test,
       '7' = related_samples_t_test,

@@ -9,8 +9,9 @@ UI = function(){
                     " " = "",
                     "Frequency Distribution" = 1,
                     "Descriptives" = 2,
-                    "Single Participant Z-Test" = 3,
                     "Correlation & Regression" = 4,
+                    "Z-scores" = 17,
+                    "Single Participant Z-Test" = 3,
                     "Single Sample Z-Test" = 5,
                     "Single Sample T-Test" = 6
                   ),

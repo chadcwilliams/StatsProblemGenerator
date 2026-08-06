@@ -39,13 +39,27 @@ freq_distribution = function(input, output, stats, plotdata) {
                                                                                                         1]
     }
     frequency_distribution$Frequency = as.integer(frequency_distribution$Frequency)
-    #Set outputs
-    stats$data_table = frequency_distribution[order(nrow(frequency_distribution):1),]
-    output$data_display = renderRHandsontable(rhandsontable(as.data.frame(data)))
-    output$stats_display = renderRHandsontable({
-        
-    })
-    output$distribution_display = renderPlot({
-        
-    })
+    
+#Set outputs
+stats$data_table = frequency_distribution[order(nrow(frequency_distribution):1),]
+
+# Reshape the raw data into a 2D grid for display
+ncols = 10  # adjust to however many columns you want per row
+nrows = ceiling(length(data) / ncols)
+padded = c(data, rep(NA, nrows * ncols - length(data)))
+data_grid = as.data.frame(matrix(padded, nrow = nrows, ncol = ncols, byrow = TRUE))
+colnames(data_grid) = paste0("V", 1:ncols)
+
+output$data_display = renderRHandsontable(
+  rhandsontable(
+    data_grid,
+    rowHeaders = FALSE,
+    colHeaders = FALSE,
+    width = "100%",
+    useTypes = FALSE
+  ) %>%
+    hot_table(stretchH = "all") %>%
+    hot_context_menu(FALSE) %>%
+    hot_cols(readOnly = TRUE)
+  )
 }

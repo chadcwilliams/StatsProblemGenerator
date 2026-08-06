@@ -21,7 +21,23 @@ observe_events = function(input, output, stats, plotdata, active_test){
                        hot_col("MS", format = "0.0000") %>%
                        hot_col("F", format = "0.0000") %>%
                        hot_col("p", format = "0.0000")
-                     
+
+                  } else if (active_test() == 1) {
+                    
+                    tbl <- stats$data_table
+                    
+                    ht <- rhandsontable(
+                      tbl,
+                      rowHeaders = FALSE,
+                      width = "100%",
+                      useTypes = FALSE
+                    ) %>%
+                      hot_table(stretchH = "all", highlightRow = TRUE) %>%
+                      hot_context_menu(FALSE) %>%
+                      hot_cols(readOnly = TRUE) %>%
+                      hot_col("Relative_Frequency", format = "0.0000") %>%
+                      hot_col("Cum_Rel_Freq", format = "0.0000")
+
                    } else if (active_test() == 15 || active_test() == 16) {
                      
                      # Chi-square (GOF + Homogeneity/Independence)

@@ -128,7 +128,7 @@ descriptives = function(input, output, stats, plotdata) {
     rhandsontable(
       data_grid,
       rowHeaders = FALSE,
-      colHeaders = FALSE,
+      colHeaders = rep("", ncol(data_grid)),
       width = "100%",
       useTypes = FALSE
     ) %>%
@@ -136,6 +136,7 @@ descriptives = function(input, output, stats, plotdata) {
       hot_context_menu(FALSE) %>%
       hot_cols(readOnly = TRUE)
   )
+  
   output$stats_display = renderRHandsontable({
     
   })

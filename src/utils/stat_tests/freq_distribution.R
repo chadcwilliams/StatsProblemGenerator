@@ -80,7 +80,7 @@ freq_distribution = function(input, output, stats, plotdata) {
     rhandsontable(
       data_grid,
       rowHeaders = FALSE,
-      colHeaders = FALSE,
+      colHeaders = rep("", ncol(data_grid)),
       width = "100%",
       useTypes = FALSE
     ) %>%

@@ -205,6 +205,15 @@ power_power <- function(input, output, stats, plotdata) {
     tbl <- tbl[, c("Variable", names(tbl)[1])]
     names(tbl)[2] <- "Value"
     
+    tbl$Value <- vapply(tbl$Value, function(v) {
+      v_trim <- trimws(as.character(v))
+      if (grepl("^-?[0-9]+\\.[0-9]+$", v_trim)) {
+        sprintf("%.4f", as.numeric(v_trim))
+      } else {
+        v_trim
+      }
+    }, character(1))
+    
     rhandsontable(
       tbl,
       rowHeaders = FALSE,
@@ -216,7 +225,6 @@ power_power <- function(input, output, stats, plotdata) {
           return td;
         }
       ") %>%
-      hot_col("Value", format = "0.000") %>%
       hot_table(
         stretchH = "all",
         highlightRow = TRUE

@@ -136,12 +136,15 @@ multiple_comparisons <- function(input, output, stats, plotdata) {
     post_hoc_test <- "None, ANOVA was not significant"
   }
   
+  data$Mean <- sprintf("%.2f", data$Mean)
+  data$SS   <- sprintf("%.2f", data$SS)
+  
   data$df_e = rep(" ", k)
   data$df_e[[1]] = df_within
   data$MS_e = rep(" ", k)
-  data$MS_e[[1]] = MS_within
+  data$MS_e[[1]] = sprintf("%.4f", MS_within)
   data$F = rep(" ", k)
-  data$F[[1]] = F_obs
+  data$F[[1]] = sprintf("%.4f", F_obs)
   data$p = rep(" ", k)
   data$p[[1]] = if (p_obs < .05) "< .05" else "> .05"
   pc_labels <- sapply(planned_comparisons, 

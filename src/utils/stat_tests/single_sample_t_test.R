@@ -17,7 +17,7 @@ single_sample_t_test = function(input, output, stats, plotdata) {
   direction_sign = sample(c(-1, 1), 1)     # push mu up or down randomly
   data$mu[1] = round(mean(data$Data) + direction_sign * effect_size * sd(data$Data))
   
-  data$SS = sum(((data$Data - mean(data$Data))^2))
+  data$SS = round(sum(((data$Data - mean(data$Data))^2)), 2)
   dir = runif(1)
   if (dir < .5) {
     data$direction = c('Two-Tail',
@@ -35,7 +35,7 @@ single_sample_t_test = function(input, output, stats, plotdata) {
   }
   
   data$p_alpha = c(.05, rep(NA, input$num_of_participants - 1))
-  data$X_Mean = c(mean(data$Data),
+  data$X_Mean = c(round(mean(data$Data), 2),
                   rep(NA, input$num_of_participants - 1))
   
   plotdata$data = data.frame(
@@ -128,6 +128,15 @@ single_sample_t_test = function(input, output, stats, plotdata) {
     
     tbl <- tbl[, c("Variable", setdiff(names(tbl), "Variable"))]
     names(tbl)[2] <- "Value"
+    
+    tbl$Value <- vapply(tbl$Value, function(v) {
+      v_trim <- trimws(as.character(v))
+      if (grepl("^-?[0-9]+\\.[0-9]+$", v_trim)) {
+        sprintf("%.2f", as.numeric(v_trim))
+      } else {
+        v_trim
+      }
+    }, character(1))
     
     rhandsontable(
       tbl,

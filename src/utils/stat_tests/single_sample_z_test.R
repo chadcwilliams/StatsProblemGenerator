@@ -129,6 +129,15 @@ single_sample_z_test = function(input, output, stats, plotdata) {
     tbl <- tbl[, c("Variable", setdiff(names(tbl), "Variable"))]
     names(tbl)[2] <- "Value"
     
+    tbl$Value <- vapply(tbl$Value, function(v) {
+      v_trim <- trimws(as.character(v))
+      if (grepl("^-?[0-9]+\\.[0-9]+$", v_trim)) {
+        sprintf("%.2f", as.numeric(v_trim))
+      } else {
+        v_trim
+      }
+    }, character(1))
+    
     rhandsontable(
       tbl,
       rowHeaders = FALSE,

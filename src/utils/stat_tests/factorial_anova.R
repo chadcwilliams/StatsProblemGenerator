@@ -133,8 +133,8 @@ factorial_anova <- function(input, output, stats, plotdata) {
       
       cell_matrix[j, i] <- paste0(
         "n = ", n_per_group,
-        ", x̄ = ", m,
-        ", SS = ", ss
+        ", x̄ = ", sprintf("%.2f", m),
+        ", SS = ", sprintf("%.2f", ss)
       )
     }
   }

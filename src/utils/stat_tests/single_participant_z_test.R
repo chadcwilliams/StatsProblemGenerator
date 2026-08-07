@@ -10,9 +10,9 @@ single_participant_z_test = function(input, output, stats, plotdata) {
       seq(input$value_range[1], input$value_range[2], by = .1),
       1
     ),
-    sigma = rnorm(1, (
+    sigma = round(rnorm(1, (
       input$value_range[2] - input$value_range[1]
-    ) / 5, .1)
+    ) / 5, .1), 2)
   )
   data2 = data.frame(data = dnorm(
     seq((data$mu - (
@@ -55,6 +55,15 @@ single_participant_z_test = function(input, output, stats, plotdata) {
     
     tbl <- tbl[, c("Variable", setdiff(names(tbl), "Variable"))]
     names(tbl)[2] <- "Value"
+    
+    tbl$Value <- vapply(tbl$Value, function(v) {
+      v_trim <- trimws(as.character(v))
+      if (grepl("^-?[0-9]+\\.[0-9]+$", v_trim)) {
+        sprintf("%.2f", as.numeric(v_trim))
+      } else {
+        v_trim
+      }
+    }, character(1))
     
     rhandsontable(
       tbl,

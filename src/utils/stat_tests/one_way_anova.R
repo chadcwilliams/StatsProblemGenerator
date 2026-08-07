@@ -80,8 +80,8 @@ one_way_anova <- function(input, output, stats, plotdata) {
   data <- data.frame(
     Group = paste("Group", 1:k),
     n     = n_vec,
-    Mean  = mean_vec,
-    SS    = SS_vec
+    Mean  = sprintf("%.2f", mean_vec),
+    SS    = sprintf("%.2f", SS_vec)
   )
   
   # --------------------------------------------------------------

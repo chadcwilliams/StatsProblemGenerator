@@ -485,6 +485,7 @@ observe_events = function(input, output, stats, plotdata, active_test){
                          breaks = floor(rng[1]) : ceiling(rng[2]),
                          limits = c(floor(rng[1]) - 1, ceiling(rng[2]) + 1)
                        ) +
+                       scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
                        ylab("Frequency Count") +
                        theme_classic()
                      
@@ -500,6 +501,7 @@ observe_events = function(input, output, stats, plotdata, active_test){
                          limits = c(floor(rng[1]) - 1,
                                     ceiling(rng[2]) + 1)
                        ) +
+                       scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
                        ylab("Density") +
                        theme_classic()
                      
@@ -512,6 +514,7 @@ observe_events = function(input, output, stats, plotdata, active_test){
                      ggplot(summary_data, aes(x = A, y = Mean, fill = B)) +
                        geom_bar(stat = "identity",
                                 position = position_dodge(width = 0.8)) +
+                       scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
                        theme_classic()
                      
                    } else if (active_test() == 15) {
@@ -520,6 +523,7 @@ observe_events = function(input, output, stats, plotdata, active_test){
                        geom_bar(aes(y = Observed),
                                 stat = "identity",
                                 fill = "#E27D60") +
+                       scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
                        theme_classic()
                      
                    } else if (active_test() == 16) {
@@ -539,6 +543,8 @@ observe_events = function(input, output, stats, plotdata, active_test){
                          values = c("#E27D60", "#85DCB0")
                        ) +
                        
+                       scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
+                       
                        labs(
                          x = "Category",
                          y = "Frequency",
@@ -548,12 +554,30 @@ observe_events = function(input, output, stats, plotdata, active_test){
                        theme_classic() +
                        theme(text = element_text(size = 18))
                      
+                   } else if (active_test() == 10 || active_test() == 11) {
+                     
+                     # Power (calculate n) + Power (calculate power) -
+                     # no meaningful visualization for these problems
+                     ggplot() +
+                       annotate(
+                         "text",
+                         x = 0.5,
+                         y = 0.5,
+                         label = "Nothing to visualize for this problem",
+                         size = 6,
+                         color = "gray40"
+                       ) +
+                       xlim(0, 1) +
+                       ylim(0, 1) +
+                       theme_void()
+                     
                    } else {
                      
                      ggplot(aes(x = data), data = plotdata$data) +
                        geom_histogram(color = "#E27D60",
                                       fill = "#E8A87C",
                                       binwidth = 1) +
+                       scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
                        theme_classic()
                    }
                  )

@@ -2,7 +2,7 @@ single_participant_z_test = function(input, output, stats, plotdata) {
   #Single Participant Z-Test
   #Create Data
   data = data.frame(
-    X = sample(
+    x = sample(
       seq(input$value_range[1], input$value_range[2], by = .1),
       1
     ),
@@ -27,13 +27,14 @@ single_participant_z_test = function(input, output, stats, plotdata) {
   
   #Create Table
   descriptives = data.frame(
-    Z_Value = (data$X - data$mu) / data$sigma,
-    P_Value_of_X_and_Below = round(pnorm(
-      round((data$X - data$mu) / data$sigma, digits = 2)
+    `z(obs)` = (data$x - data$mu) / data$sigma,
+    `p(x and below)` = round(pnorm(
+      round((data$x - data$mu) / data$sigma, digits = 2)
     ), digits = 4),
-    P_Value_of_X_and_Above = round(pnorm(
-      round((data$X - data$mu) / data$sigma, digits = 2), lower.tail = F
-    ), digits = 4)
+    `p(x and above)` = round(pnorm(
+      round((data$x - data$mu) / data$sigma, digits = 2), lower.tail = F
+    ), digits = 4),
+    check.names = FALSE
   )
   #Round all numeric columns to 4 decimal places max
   descriptives[] = lapply(descriptives, function(col) {
@@ -42,12 +43,15 @@ single_participant_z_test = function(input, output, stats, plotdata) {
   
   #Set Outputs
   stats$data_table = descriptives
-  stats$p_value = descriptives$P_Value_of_X_and_Below  # used by the distribution plot
+  stats$p_value = descriptives$`p(x and below)`  # used by the distribution plot
   output$data_display = renderRHandsontable({
     
     tbl <- as.data.frame(t(data))
     tbl$Variable <- rownames(tbl)
     rownames(tbl) <- NULL
+    
+    tbl$Variable <- ifelse(tbl$Variable == "mu", "\u03bc",
+                           ifelse(tbl$Variable == "sigma", "\u03c3", tbl$Variable))
     
     tbl <- tbl[, c("Variable", setdiff(names(tbl), "Variable"))]
     names(tbl)[2] <- "Value"

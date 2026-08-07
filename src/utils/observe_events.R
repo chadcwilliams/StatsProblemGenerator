@@ -30,6 +30,7 @@ observe_events = function(input, output, stats, plotdata, active_test){
                      ht <- rhandsontable(
                        tbl,
                        rowHeaders = FALSE,
+                       colHeaders = gsub("_", " ", names(tbl)),
                        width = "100%",
                        useTypes = FALSE
                      ) %>%
@@ -53,6 +54,159 @@ observe_events = function(input, output, stats, plotdata, active_test){
                        hot_context_menu(FALSE) %>%
                        hot_cols(readOnly = TRUE)
                      
+                   } else if (active_test() == 4) {
+                     
+                     # Correlation & Regression
+                     tbl <- as.data.frame(t(stats$data_table[1, , drop = FALSE]))
+                     tbl$Statistic <- rownames(tbl)
+                     rownames(tbl) <- NULL
+                     tbl <- tbl[, c("Statistic", names(tbl)[1])]
+                     names(tbl)[2] <- "Value"
+                     
+                     label_map <- c(
+                       X_Mean     = "x\u0304",
+                       Y_Mean     = "y\u0304",
+                       X_SD       = "SD<sub>X</sub>",
+                       Y_SD       = "SD<sub>Y</sub>",
+                       SP         = "SP",
+                       COV        = "COV",
+                       r          = "r",
+                       by         = "b<sub>Y</sub>",
+                       ay         = "a<sub>Y</sub>",
+                       bx         = "b<sub>X</sub>",
+                       ax         = "a<sub>X</sub>",
+                       SD_XPrime  = "SD<sub>X'</sub>",
+                       SD_Yprime  = "SD<sub>Y'</sub>"
+                     )
+                     tbl$Statistic <- ifelse(
+                       tbl$Statistic %in% names(label_map),
+                       label_map[tbl$Statistic],
+                       tbl$Statistic
+                     )
+                     
+                     ht <- rhandsontable(
+                       tbl,
+                       rowHeaders = FALSE,
+                       width = "100%",
+                       useTypes = FALSE
+                     ) %>%
+                       hot_table(stretchH = "all", highlightRow = TRUE) %>%
+                       hot_context_menu(FALSE) %>%
+                       hot_cols(readOnly = TRUE) %>%
+                       hot_col("Statistic", renderer = "
+                         function(instance, td, row, col, prop, value, cellProperties) {
+                           td.innerHTML = value;
+                           return td;
+                         }
+                       ") %>%
+                       hot_col("Value", format = "0.0000")
+                     
+                   } else if (active_test() == 2) {
+                     
+                     # Descriptives
+                     tbl <- as.data.frame(t(stats$data_table[1, , drop = FALSE]))
+                     tbl$Statistic <- rownames(tbl)
+                     rownames(tbl) <- NULL
+                     tbl <- tbl[, c("Statistic", names(tbl)[1])]
+                     names(tbl)[2] <- "Value"
+                     
+                     label_map <- c(
+                       Mean  = "Mean (x\u0304)",
+                       SkewP = "Skew<sub>p</sub>"
+                     )
+                     tbl$Statistic <- ifelse(
+                       tbl$Statistic %in% names(label_map),
+                       label_map[tbl$Statistic],
+                       tbl$Statistic
+                     )
+                     
+                     ht <- rhandsontable(
+                       tbl,
+                       rowHeaders = FALSE,
+                       width = "100%",
+                       useTypes = FALSE
+                     ) %>%
+                       hot_table(stretchH = "all", highlightRow = TRUE) %>%
+                       hot_context_menu(FALSE) %>%
+                       hot_cols(readOnly = TRUE) %>%
+                       hot_col("Statistic", renderer = "
+                         function(instance, td, row, col, prop, value, cellProperties) {
+                           td.innerHTML = value;
+                           return td;
+                         }
+                       ") %>%
+                       hot_col("Value", format = "0.0000")
+                     
+                   } else if (active_test() == 5) {
+                     
+                     # Single Sample Z-Test
+                     tbl <- as.data.frame(t(stats$data_table[1, , drop = FALSE]))
+                     tbl$Statistic <- rownames(tbl)
+                     rownames(tbl) <- NULL
+                     tbl <- tbl[, c("Statistic", names(tbl)[1])]
+                     names(tbl)[2] <- "Value"
+                     
+                     label_map <- c(
+                       H0 = "H<sub>0</sub>",
+                       H1 = "H<sub>1</sub>"
+                     )
+                     tbl$Statistic <- ifelse(
+                       tbl$Statistic %in% names(label_map),
+                       label_map[tbl$Statistic],
+                       tbl$Statistic
+                     )
+                     
+                     ht <- rhandsontable(
+                       tbl,
+                       rowHeaders = FALSE,
+                       width = "100%",
+                       useTypes = FALSE
+                     ) %>%
+                       hot_table(stretchH = "all", highlightRow = TRUE) %>%
+                       hot_context_menu(FALSE) %>%
+                       hot_cols(readOnly = TRUE) %>%
+                       hot_col("Statistic", renderer = "
+                         function(instance, td, row, col, prop, value, cellProperties) {
+                           td.innerHTML = value;
+                           return td;
+                         }
+                       ")
+                     
+                   } else if (active_test() == 6) {
+                     
+                     # Single Sample T-Test
+                     tbl <- as.data.frame(t(stats$data_table[1, , drop = FALSE]))
+                     tbl$Statistic <- rownames(tbl)
+                     rownames(tbl) <- NULL
+                     tbl <- tbl[, c("Statistic", names(tbl)[1])]
+                     names(tbl)[2] <- "Value"
+                     
+                     label_map <- c(
+                       H0 = "H<sub>0</sub>",
+                       H1 = "H<sub>1</sub>"
+                     )
+                     tbl$Statistic <- ifelse(
+                       tbl$Statistic %in% names(label_map),
+                       label_map[tbl$Statistic],
+                       tbl$Statistic
+                     )
+                     
+                     ht <- rhandsontable(
+                       tbl,
+                       rowHeaders = FALSE,
+                       width = "100%",
+                       useTypes = FALSE
+                     ) %>%
+                       hot_table(stretchH = "all", highlightRow = TRUE) %>%
+                       hot_context_menu(FALSE) %>%
+                       hot_cols(readOnly = TRUE) %>%
+                       hot_col("Statistic", renderer = "
+                         function(instance, td, row, col, prop, value, cellProperties) {
+                           td.innerHTML = value;
+                           return td;
+                         }
+                       ")
+                     
                    } else {
                      
                      tbl <- as.data.frame(t(stats$data_table[1, , drop = FALSE]))
@@ -73,7 +227,7 @@ observe_events = function(input, output, stats, plotdata, active_test){
                      
                      if (active_test() == 3) {
                        ht <- ht %>% hot_col("Value", format = "0.0000")
-                     } else if (active_test() %in% c(5, 6, 7)) {
+                     } else if (active_test() == 7) {
                        ht <- ht %>% hot_col("Value", format = "0.0000")
                      }
                    }
@@ -94,6 +248,21 @@ observe_events = function(input, output, stats, plotdata, active_test){
                          stats$p_value * 100
                        )) + .5, color = 'red') +
                        theme_void()
+                     
+                   } else if (active_test() == 5 || active_test() == 6) {
+                     
+                     ggplot(plotdata$data, aes(x = Group, y = Mean, fill = Group)) +
+                       geom_bar(stat = "identity", width = 0.6, color = "black") +
+                       geom_errorbar(
+                         aes(ymin = Mean - SD, ymax = Mean + SD),
+                         width = 0.1,
+                         na.rm = TRUE
+                       ) +
+                       scale_fill_manual(values = c("#E27D60", "#85DCB0")) +
+                       scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
+                       ylab("Value") +
+                       theme_classic() +
+                       theme(text = element_text(size = 18), legend.position = "none")
                      
                    } else if (active_test() == 4 || active_test() == 8) {
                      
@@ -117,38 +286,6 @@ observe_events = function(input, output, stats, plotdata, active_test){
                        ) +
                        theme_classic() +
                        theme(text = element_text(size = 20))
-                     
-                   } else if (active_test() == 5) {
-                     
-                     ggplot(plotdata$data, aes(x = Group, y = Mean, fill = Group)) +
-                       geom_bar(stat = "identity", width = 0.6, color = "black") +
-                       geom_errorbar(
-                         aes(ymin = Mean - Sigma, ymax = Mean + Sigma),
-                         width = 0.1,
-                         na.rm = TRUE
-                       ) +
-                       scale_fill_manual(values = c("#E27D60", "#85DCB0")) +
-                       scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
-                       ylab("Value") +
-                       xlab(" ") +
-                       theme_classic() +
-                       theme(text = element_text(size = 18), legend.position = "none")
-                     
-                   } else if (active_test() == 6) {
-                     
-                     ggplot(plotdata$data, aes(x = Group, y = Mean, fill = Group)) +
-                       geom_bar(stat = "identity", width = 0.6, color = "black") +
-                       geom_errorbar(
-                         aes(ymin = Mean - SD, ymax = Mean + SD),
-                         width = 0.1,
-                         na.rm = TRUE
-                       ) +
-                       scale_fill_manual(values = c("#E27D60", "#85DCB0")) +
-                       scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
-                       ylab("Value") +
-                       xlab(" ") +
-                       theme_classic() +
-                       theme(text = element_text(size = 18), legend.position = "none")
                      
                    } else if (active_test() == 9) {
                      

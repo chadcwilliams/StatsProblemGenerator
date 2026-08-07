@@ -51,42 +51,55 @@ single_sample_t_test = function(input, output, stats, plotdata) {
   t=if (direction == 1){t.test(data$Data,mu=data$mu[1])
   }else if (direction == 2) {t.test(data$Data,mu=data$mu[1],alternative = 'less')
   }else{t.test(data$Data,mu=data$mu[1],alternative = 'greater')}
-  descriptives = data_table = data.frame(
-    SS = sum(((data$Data - mean(data$Data))^2)),
-    s = sd(data$Data),
-    SE = sd(data$Data) / sqrt(input$num_of_participants),
-    df = input$num_of_participants-1,
-    t_obs = as.numeric(t[['statistic']]),
-    t_crit = 
-      if (direction == 1) {
-        paste('+/-',toString(round(qt(p=.975, df=input$num_of_participants-1),2)))
-      } else if (direction == 2) {
-        round(qt(p=.05, df=input$num_of_participants-1),2)
-      } else{
-        round(qt(p=.95, df=input$num_of_participants-1),2)
-      }
-  )
   
-  descriptives$p_obs = as.numeric(t[['p.value']])
-  descriptives$p_alpha = .05
-  if (direction == 1){
-    descriptives$H0 = if (descriptives$p_obs < .05){'Reject'}else{'Retain'}
-    descriptives$H1 = if (descriptives$p_obs < .05){'Accept'}else{'Suspend'}}
-  else if (direction == 2){
-    if (descriptives$t_obs<0){
-      descriptives$H0 = if (descriptives$p_obs < .05){'Reject'}else{'Retain'}
-      descriptives$H1 = if (descriptives$p_obs < .05){'Accept'}else{'Suspend'}}
-    else{
-      descriptives$H0 = 'Retain'
-      descriptives$H1 = 'Suspend'}
-  } else {
-    if (descriptives$t_obs>0){
-      descriptives$H0 = if (descriptives$p_obs < .05){'Reject'}else{'Retain'}
-      descriptives$H1 = if (descriptives$p_obs < .05){'Accept'}else{'Suspend'}}
-    else{
-      descriptives$H0 = 'Retain'
-      descriptives$H1 = 'Suspend'}
+  SS = sum(((data$Data - mean(data$Data))^2))
+  s = sd(data$Data)
+  SE = sd(data$Data) / sqrt(input$num_of_participants)
+  df = input$num_of_participants-1
+  t_obs = as.numeric(t[['statistic']])
+  t_crit = if (direction == 1) {
+    paste('+/-',toString(round(qt(p=.975, df=input$num_of_participants-1),2)))
+  } else if (direction == 2) {
+    round(qt(p=.05, df=input$num_of_participants-1),2)
+  } else{
+    round(qt(p=.95, df=input$num_of_participants-1),2)
   }
+  
+  p_obs = as.numeric(t[['p.value']])
+  p_alpha = .05
+  if (direction == 1){
+    H0 = if (p_obs < .05){'Reject'}else{'Retain'}
+    H1 = if (p_obs < .05){'Accept'}else{'Suspend'}}
+  else if (direction == 2){
+    if (t_obs<0){
+      H0 = if (p_obs < .05){'Reject'}else{'Retain'}
+      H1 = if (p_obs < .05){'Accept'}else{'Suspend'}}
+    else{
+      H0 = 'Retain'
+      H1 = 'Suspend'}
+  } else {
+    if (t_obs>0){
+      H0 = if (p_obs < .05){'Reject'}else{'Retain'}
+      H1 = if (p_obs < .05){'Accept'}else{'Suspend'}}
+    else{
+      H0 = 'Retain'
+      H1 = 'Suspend'}
+  }
+  
+  descriptives = data.frame(
+    SS = SS,
+    s = s,
+    SE = SE,
+    df = df,
+    `t(obs)` = t_obs,
+    `t(crit)` = t_crit,
+    `p(obs)` = p_obs,
+    p_alpha = p_alpha,
+    H0 = H0,
+    H1 = H1,
+    check.names = FALSE
+  )
+  names(descriptives)[names(descriptives) == "p_alpha"] <- "p(\u03b1)"
   
   #Round all numeric columns to 4 decimal places max
   descriptives[] = lapply(descriptives, function(col) {
@@ -100,6 +113,17 @@ single_sample_t_test = function(input, output, stats, plotdata) {
     tbl <- as.data.frame(t(data[1, 2:dim(data)[2]]))
     tbl$Variable <- rownames(tbl)
     rownames(tbl) <- NULL
+    
+    label_map <- c(
+      mu     = "\u03bc",
+      p_alpha = "p(\u03b1)",
+      X_Mean = "x\u0304"
+    )
+    tbl$Variable <- ifelse(
+      tbl$Variable %in% names(label_map),
+      label_map[tbl$Variable],
+      tbl$Variable
+    )
     
     tbl <- tbl[, c("Variable", setdiff(names(tbl), "Variable"))]
     names(tbl)[2] <- "Value"

@@ -45,50 +45,60 @@ single_sample_z_test = function(input, output, stats, plotdata) {
       levels = c("Population (\u03bc & \u03c3)", "Sample (x\u0304)")
     ),
     Mean = c(data$mu[1], data$X_Mean[1]),
-    Sigma = c(data$sigma[1], NA)
+    SD = c(data$sigma[1], NA)
   )
   
   #Create Stats
-  descriptives = data_table = data.frame(
-    SE = data$sigma[1] / sqrt(input$num_of_participants),
-    z_obs = (data$X_Mean[1] - data$mu[1]) / (data$sigma[1] /
-                                               sqrt(input$num_of_participants)),
-    z_crit = if (direction == 1) {
-      '+-1.96'
-    } else if (direction == 2) {
-      '-1.645'
-    } else{
-      '+1.645'
-    }
-  )
-  
-  descriptives$p_obs = if (direction == 1) {
-    2 * pnorm(-abs(descriptives$z_obs))
+  SE = data$sigma[1] / sqrt(input$num_of_participants)
+  z_obs = (data$X_Mean[1] - data$mu[1]) / (data$sigma[1] /
+                                             sqrt(input$num_of_participants))
+  z_crit = if (direction == 1) {
+    '+-1.96'
   } else if (direction == 2) {
-    pnorm(descriptives$z_obs)
-  } else {
-    pnorm(descriptives$z_obs, lower.tail = FALSE)
+    '-1.645'
+  } else{
+    '+1.645'
   }
   
-  descriptives$p_alpha = .05
-  if (direction == 1){
-    descriptives$H0 = if (descriptives$p_obs < .05){'Reject'}else{'Retain'}
-    descriptives$H1 = if (descriptives$p_obs < .05){'Accept'}else{'Suspend'}}
-  else if (direction == 2){
-    if (descriptives$z_obs<0){
-      descriptives$H0 = if (descriptives$p_obs < .05){'Reject'}else{'Retain'}
-      descriptives$H1 = if (descriptives$p_obs < .05){'Accept'}else{'Suspend'}}
-    else{
-      descriptives$H0 = 'Retain'
-      descriptives$H1 = 'Suspend'}
+  p_obs = if (direction == 1) {
+    2 * pnorm(-abs(z_obs))
+  } else if (direction == 2) {
+    pnorm(z_obs)
   } else {
-    if (descriptives$z_obs>0){
-      descriptives$H0 = if (descriptives$p_obs < .05){'Reject'}else{'Retain'}
-      descriptives$H1 = if (descriptives$p_obs < .05){'Accept'}else{'Suspend'}}
-    else{
-      descriptives$H0 = 'Retain'
-      descriptives$H1 = 'Suspend'}
+    pnorm(z_obs, lower.tail = FALSE)
   }
+  
+  p_alpha = .05
+  if (direction == 1){
+    H0 = if (p_obs < .05){'Reject'}else{'Retain'}
+    H1 = if (p_obs < .05){'Accept'}else{'Suspend'}}
+  else if (direction == 2){
+    if (z_obs<0){
+      H0 = if (p_obs < .05){'Reject'}else{'Retain'}
+      H1 = if (p_obs < .05){'Accept'}else{'Suspend'}}
+    else{
+      H0 = 'Retain'
+      H1 = 'Suspend'}
+  } else {
+    if (z_obs>0){
+      H0 = if (p_obs < .05){'Reject'}else{'Retain'}
+      H1 = if (p_obs < .05){'Accept'}else{'Suspend'}}
+    else{
+      H0 = 'Retain'
+      H1 = 'Suspend'}
+  }
+  
+  descriptives = data.frame(
+    SE = SE,
+    `z(obs)` = z_obs,
+    `z(crit)` = z_crit,
+    `p(obs)` = p_obs,
+    p_alpha = p_alpha,
+    H0 = H0,
+    H1 = H1,
+    check.names = FALSE
+  )
+  names(descriptives)[names(descriptives) == "p_alpha"] <- "p(\u03b1)"
   
   #Round all numeric columns to 4 decimal places max
   descriptives[] = lapply(descriptives, function(col) {
@@ -102,6 +112,18 @@ single_sample_z_test = function(input, output, stats, plotdata) {
     tbl <- as.data.frame(t(data[1, 2:dim(data)[2]]))
     tbl$Variable <- rownames(tbl)
     rownames(tbl) <- NULL
+    
+    label_map <- c(
+      mu     = "\u03bc",
+      sigma  = "\u03c3",
+      p_alpha = "p(\u03b1)",
+      X_Mean = "x\u0304"
+    )
+    tbl$Variable <- ifelse(
+      tbl$Variable %in% names(label_map),
+      label_map[tbl$Variable],
+      tbl$Variable
+    )
     
     tbl <- tbl[, c("Variable", setdiff(names(tbl), "Variable"))]
     names(tbl)[2] <- "Value"

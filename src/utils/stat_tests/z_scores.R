@@ -2,11 +2,11 @@ z_scores = function(input, output, stats, plotdata) {
   #Single Participant Z-Test
   #Create Data
   data = data.frame(
-    X = sample(seq(input$value_range[1], input$value_range[2], by = .1), 1),
+    x = sample(seq(input$value_range[1], input$value_range[2], by = .1), 1),
     X_mean = sample(seq(input$value_range[1], input$value_range[2], by = .1), 1),
     SD = rnorm(1, (input$value_range[2] - input$value_range[1]) / 5, .1)
   )
-  data$X = round(data$X, 2)
+  data$x = round(data$x, 2)
   data$X_mean = round(data$X_mean, 2)
   data$SD = round(data$SD, 2)
   
@@ -18,9 +18,9 @@ z_scores = function(input, output, stats, plotdata) {
   plotdata$data = data2
   
   #Create Table
-  z = round((data$X - data$X_mean) / data$SD, 4)
+  z = round((data$x - data$X_mean) / data$SD, 4)
   descriptives = data.frame(
-    Z_Score = z
+    z = z
   )
   
   #Set Outputs
@@ -31,6 +31,8 @@ z_scores = function(input, output, stats, plotdata) {
     tbl <- as.data.frame(t(data))
     tbl$Variable <- rownames(tbl)
     rownames(tbl) <- NULL
+    
+    tbl$Variable <- ifelse(tbl$Variable == "X_mean", "x\u0304", tbl$Variable)
     
     tbl <- tbl[, c("Variable", setdiff(names(tbl), "Variable"))]
     names(tbl)[2] <- "Value"

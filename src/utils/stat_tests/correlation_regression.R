@@ -71,9 +71,16 @@ correlation_regression = function(input, output, stats, plotdata) {
     
     tbl <- data[, c("X", "Y", "X_SD", "Y_SD")]
     
+    # Pre-format X_SD/Y_SD as display strings (4 decimals, blank for NA)
+    # rather than letting rhandsontable format a column containing NA,
+    # which triggers an internal indexing bug.
+    tbl$X_SD <- ifelse(is.na(tbl$X_SD), "", sprintf("%.4f", tbl$X_SD))
+    tbl$Y_SD <- ifelse(is.na(tbl$Y_SD), "", sprintf("%.4f", tbl$Y_SD))
+    
     rhandsontable(
       tbl,
       rowHeaders = FALSE,
+      colHeaders = c("X", "Y", "SD<sub>X</sub>", "SD<sub>Y</sub>"),
       width = "100%"
     ) %>%
       hot_table(

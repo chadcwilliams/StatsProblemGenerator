@@ -1,5 +1,20 @@
 observe_events = function(input, output, stats, plotdata, active_test){
   
+  # Restores trailing zeros lost when a mixed-type row gets coerced to
+  # character during transpose (e.g. "1.567" -> "1.5670"). Only touches
+  # strings that already contain a decimal point, so whole-number fields
+  # like df/n/k are left untouched.
+  pad_decimals <- function(x, digits = 4) {
+    vapply(x, function(v) {
+      v_trim <- trimws(as.character(v))
+      if (grepl("^-?[0-9]+\\.[0-9]+$", v_trim)) {
+        sprintf(paste0("%.", digits, "f"), as.numeric(v_trim))
+      } else {
+        v_trim
+      }
+    }, character(1))
+  }
+  
   observeEvent(input$answers,
                {
                  output$stats_display <- renderRHandsontable({
@@ -62,6 +77,7 @@ observe_events = function(input, output, stats, plotdata, active_test){
                      rownames(tbl) <- NULL
                      tbl <- tbl[, c("Statistic", names(tbl)[1])]
                      names(tbl)[2] <- "Value"
+                     tbl$Value <- pad_decimals(tbl$Value)
                      
                      label_map <- c(
                        X_Mean     = "x\u0304",
@@ -109,6 +125,7 @@ observe_events = function(input, output, stats, plotdata, active_test){
                      rownames(tbl) <- NULL
                      tbl <- tbl[, c("Statistic", names(tbl)[1])]
                      names(tbl)[2] <- "Value"
+                     tbl$Value <- pad_decimals(tbl$Value)
                      
                      label_map <- c(
                        Mean  = "Mean (x\u0304)",
@@ -145,6 +162,7 @@ observe_events = function(input, output, stats, plotdata, active_test){
                      rownames(tbl) <- NULL
                      tbl <- tbl[, c("Statistic", names(tbl)[1])]
                      names(tbl)[2] <- "Value"
+                     tbl$Value <- pad_decimals(tbl$Value)
                      
                      label_map <- c(
                        H0 = "H<sub>0</sub>",
@@ -180,6 +198,7 @@ observe_events = function(input, output, stats, plotdata, active_test){
                      rownames(tbl) <- NULL
                      tbl <- tbl[, c("Statistic", names(tbl)[1])]
                      names(tbl)[2] <- "Value"
+                     tbl$Value <- pad_decimals(tbl$Value)
                      
                      label_map <- c(
                        H0 = "H<sub>0</sub>",
@@ -215,6 +234,7 @@ observe_events = function(input, output, stats, plotdata, active_test){
                      rownames(tbl) <- NULL
                      tbl <- tbl[, c("Statistic", names(tbl)[1])]
                      names(tbl)[2] <- "Value"
+                     tbl$Value <- pad_decimals(tbl$Value)
                      
                      label_map <- c(
                        H0 = "H<sub>0</sub>",
@@ -250,6 +270,7 @@ observe_events = function(input, output, stats, plotdata, active_test){
                      rownames(tbl) <- NULL
                      tbl <- tbl[, c("Statistic", names(tbl)[1])]
                      names(tbl)[2] <- "Value"
+                     tbl$Value <- pad_decimals(tbl$Value)
                      
                      label_map <- c(
                        H0 = "H<sub>0</sub>",
@@ -285,6 +306,7 @@ observe_events = function(input, output, stats, plotdata, active_test){
                      rownames(tbl) <- NULL
                      tbl <- tbl[, c("Statistic", names(tbl)[1])]
                      names(tbl)[2] <- "Value"
+                     tbl$Value <- pad_decimals(tbl$Value)
                      
                      label_map <- c(
                        H0 = "H<sub>0</sub>",
@@ -320,6 +342,7 @@ observe_events = function(input, output, stats, plotdata, active_test){
                      rownames(tbl) <- NULL
                      tbl <- tbl[, c("Statistic", names(tbl)[1])]
                      names(tbl)[2] <- "Value"
+                     tbl$Value <- pad_decimals(tbl$Value)
                      
                      label_map <- c(
                        H0 = "H<sub>0</sub>",
@@ -355,6 +378,7 @@ observe_events = function(input, output, stats, plotdata, active_test){
                      rownames(tbl) <- NULL
                      tbl <- tbl[, c("Statistic", names(tbl)[1])]
                      names(tbl)[2] <- "Value"
+                     tbl$Value <- pad_decimals(tbl$Value)
                      
                      header_labels <- c("Planned Comparisons", "Post-Hoc Comparisons")
                      header_rows_r <- which(tbl$Statistic %in% header_labels)
@@ -398,6 +422,7 @@ observe_events = function(input, output, stats, plotdata, active_test){
                      rownames(tbl) <- NULL
                      tbl <- tbl[, c("Statistic", names(tbl)[1])]
                      names(tbl)[2] <- "Value"
+                     tbl$Value <- pad_decimals(tbl$Value)
                      
                      ht <- rhandsontable(
                        tbl,

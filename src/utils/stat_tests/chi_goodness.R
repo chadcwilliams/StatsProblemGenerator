@@ -199,22 +199,15 @@ chi_squared_goodness <- function(input, output, stats, plotdata) {
     rhandsontable(
       data_wide,
       rowHeaders = FALSE,
+      colHeaders = c("", col_names),
       width = "100%"
     ) %>%
-      hot_col("Statistic", readOnly = TRUE) %>%
+      hot_col(1, readOnly = TRUE) %>%
       hot_table(stretchH = "all")
     
   })
   
   output$stats_display <- renderRHandsontable({
-    
-    rhandsontable(
-      answer_table,
-      rowHeaders = FALSE,
-      width = "100%"
-    ) %>%
-      hot_col("Statistic", readOnly = TRUE) %>%
-      hot_table(stretchH = "all")
     
   })
   

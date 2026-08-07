@@ -408,9 +408,10 @@ factorial_anova <- function(input, output, stats, plotdata) {
     rhandsontable(
       tbl,
       rowHeaders = FALSE,
+      colHeaders = c("", colnames(data)),
       width = "100%"
     ) %>%
-      hot_col("Statistic", readOnly = TRUE) %>%
+      hot_col(1, readOnly = TRUE) %>%
       hot_table(
         stretchH = "all",
         highlightRow = TRUE

@@ -141,9 +141,9 @@ independent_samples_t_test <- function(input, output, stats, plotdata) {
   output$data_display <- renderRHandsontable({
     
     tbl <- as.data.frame(t(data[1, 3:ncol(data)]))
-    tbl$Statistic <- rownames(tbl)
+    tbl$Variable <- rownames(tbl)
     rownames(tbl) <- NULL
-    tbl <- tbl[, c("Statistic", names(tbl)[1])]
+    tbl <- tbl[, c("Variable", names(tbl)[1])]
     names(tbl)[2] <- "Value"
     
     rhandsontable(
@@ -151,7 +151,7 @@ independent_samples_t_test <- function(input, output, stats, plotdata) {
       rowHeaders = FALSE,
       width = "100%"
     ) %>%
-      hot_col("Statistic", readOnly = TRUE) %>%
+      hot_col("Variable", readOnly = TRUE) %>%
       hot_col("Value", format = "0.000") %>%
       hot_table(
         stretchH = "all",

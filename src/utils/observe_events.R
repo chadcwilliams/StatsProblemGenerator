@@ -22,14 +22,30 @@ observe_events = function(input, output, stats, plotdata, active_test){
                        hot_col("F", format = "0.0000") %>%
                        hot_col("p", format = "0.0000")
                      
-                   } else if (active_test() == 1 || active_test() == 15 || active_test() == 16) {
+                   } else if (active_test() == 1) {
                      
-                     # Frequency Distribution + Chi-square (GOF + Homogeneity/Independence)
+                     # Frequency Distribution
                      tbl <- stats$data_table
                      
                      ht <- rhandsontable(
                        tbl,
                        rowHeaders = FALSE,
+                       width = "100%",
+                       useTypes = FALSE
+                     ) %>%
+                       hot_table(stretchH = "all", highlightRow = TRUE) %>%
+                       hot_context_menu(FALSE) %>%
+                       hot_cols(readOnly = TRUE)
+                     
+                   } else if (active_test() == 15 || active_test() == 16) {
+                     
+                     # Chi-square Goodness of Fit + Homogeneity/Independence
+                     tbl <- stats$data_table
+                     
+                     ht <- rhandsontable(
+                       tbl,
+                       rowHeaders = FALSE,
+                       colHeaders = c("", names(tbl)[-1]),
                        width = "100%",
                        useTypes = FALSE
                      ) %>%

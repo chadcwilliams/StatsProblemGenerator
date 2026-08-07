@@ -134,11 +134,8 @@ chi_squared_homoind <- function(input, output, stats, plotdata) {
   )
   
   # --------------------------------------------------------------
-  # Marginal sums
+  # Marginal sums (row_totals/col_totals already computed above)
   # --------------------------------------------------------------
-  row_totals <- rowSums(observed_matrix)
-  col_totals <- colSums(observed_matrix)
-  
   formatted_with_row_totals <- cbind(
     formatted_matrix,
     as.character(row_totals)
@@ -166,7 +163,7 @@ chi_squared_homoind <- function(input, output, stats, plotdata) {
   stats$data_table <- answer_table
   
   # --------------------------------------------------------------
-  # ✅ FIXED PLOT DATA (THIS WAS THE BUG)
+  # Plot data
   # --------------------------------------------------------------
   plotdata$data <- data.frame(
     Category = rep(col_names, times = 2),
@@ -181,7 +178,12 @@ chi_squared_homoind <- function(input, output, stats, plotdata) {
   # DATA DISPLAY ONLY (NO ANSWERS SHOWN HERE)
   # --------------------------------------------------------------
   output$data_display <- renderRHandsontable({
-    rhandsontable(data_wide, rowHeaders = FALSE, width = "100%") %>%
+    rhandsontable(
+      data_wide,
+      rowHeaders = FALSE,
+      colHeaders = c("", col_names),
+      width = "100%"
+    ) %>%
       hot_table(stretchH = "all") %>%
       hot_cols(readOnly = TRUE)
   })

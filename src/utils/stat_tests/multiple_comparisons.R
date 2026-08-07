@@ -305,7 +305,8 @@ multiple_comparisons <- function(input, output, stats, plotdata) {
   stats$data_table <- statistics
   output$data_display <- renderRHandsontable({
     
-    tbl <- as.data.frame(t(data))
+    tbl <- as.data.frame(t(data[, setdiff(names(data), "Group")]))
+    colnames(tbl) <- data$Group
     tbl$Statistic <- rownames(tbl)
     rownames(tbl) <- NULL
     
@@ -314,13 +315,15 @@ multiple_comparisons <- function(input, output, stats, plotdata) {
     rhandsontable(
       tbl,
       rowHeaders = FALSE,
+      colHeaders = c("", data$Group),
       width = "100%"
     ) %>%
-      hot_col("Statistic", readOnly = TRUE) %>%
+      hot_col(1, readOnly = TRUE) %>%
       hot_table(
         stretchH = "all",
         highlightRow = TRUE
-      )
+      ) %>%
+      hot_cols(halign = "htCenter", valign = "htMiddle")
   })
   
   output$stats_display <- renderRHandsontable({

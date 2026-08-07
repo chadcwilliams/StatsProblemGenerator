@@ -100,6 +100,7 @@ single_sample_t_test = function(input, output, stats, plotdata) {
     check.names = FALSE
   )
   names(descriptives)[names(descriptives) == "p_alpha"] <- "p(\u03b1)"
+  names(descriptives)[names(descriptives) == "SE"] <- "s<sub>x\u0304</sub>"
   
   #Round all numeric columns to 4 decimal places max
   descriptives[] = lapply(descriptives, function(col) {

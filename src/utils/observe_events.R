@@ -207,6 +207,190 @@ observe_events = function(input, output, stats, plotdata, active_test){
                          }
                        ")
                      
+                   } else if (active_test() == 7) {
+                     
+                     # Related Samples T-Test
+                     tbl <- as.data.frame(t(stats$data_table[1, , drop = FALSE]))
+                     tbl$Statistic <- rownames(tbl)
+                     rownames(tbl) <- NULL
+                     tbl <- tbl[, c("Statistic", names(tbl)[1])]
+                     names(tbl)[2] <- "Value"
+                     
+                     label_map <- c(
+                       H0 = "H<sub>0</sub>",
+                       H1 = "H<sub>1</sub>"
+                     )
+                     tbl$Statistic <- ifelse(
+                       tbl$Statistic %in% names(label_map),
+                       label_map[tbl$Statistic],
+                       tbl$Statistic
+                     )
+                     
+                     ht <- rhandsontable(
+                       tbl,
+                       rowHeaders = FALSE,
+                       width = "100%",
+                       useTypes = FALSE
+                     ) %>%
+                       hot_table(stretchH = "all", highlightRow = TRUE) %>%
+                       hot_context_menu(FALSE) %>%
+                       hot_cols(readOnly = TRUE) %>%
+                       hot_col("Statistic", renderer = "
+                         function(instance, td, row, col, prop, value, cellProperties) {
+                           td.innerHTML = value;
+                           return td;
+                         }
+                       ")
+                     
+                   } else if (active_test() == 8) {
+                     
+                     # Correlation (Advanced)
+                     tbl <- as.data.frame(t(stats$data_table[1, , drop = FALSE]))
+                     tbl$Statistic <- rownames(tbl)
+                     rownames(tbl) <- NULL
+                     tbl <- tbl[, c("Statistic", names(tbl)[1])]
+                     names(tbl)[2] <- "Value"
+                     
+                     label_map <- c(
+                       H0 = "H<sub>0</sub>",
+                       H1 = "H<sub>1</sub>"
+                     )
+                     tbl$Statistic <- ifelse(
+                       tbl$Statistic %in% names(label_map),
+                       label_map[tbl$Statistic],
+                       tbl$Statistic
+                     )
+                     
+                     ht <- rhandsontable(
+                       tbl,
+                       rowHeaders = FALSE,
+                       width = "100%",
+                       useTypes = FALSE
+                     ) %>%
+                       hot_table(stretchH = "all", highlightRow = TRUE) %>%
+                       hot_context_menu(FALSE) %>%
+                       hot_cols(readOnly = TRUE) %>%
+                       hot_col("Statistic", renderer = "
+                         function(instance, td, row, col, prop, value, cellProperties) {
+                           td.innerHTML = value;
+                           return td;
+                         }
+                       ")
+                     
+                   } else if (active_test() == 9) {
+                     
+                     # Independent Samples T-Test
+                     tbl <- as.data.frame(t(stats$data_table[1, , drop = FALSE]))
+                     tbl$Statistic <- rownames(tbl)
+                     rownames(tbl) <- NULL
+                     tbl <- tbl[, c("Statistic", names(tbl)[1])]
+                     names(tbl)[2] <- "Value"
+                     
+                     label_map <- c(
+                       H0 = "H<sub>0</sub>",
+                       H1 = "H<sub>1</sub>"
+                     )
+                     tbl$Statistic <- ifelse(
+                       tbl$Statistic %in% names(label_map),
+                       label_map[tbl$Statistic],
+                       tbl$Statistic
+                     )
+                     
+                     ht <- rhandsontable(
+                       tbl,
+                       rowHeaders = FALSE,
+                       width = "100%",
+                       useTypes = FALSE
+                     ) %>%
+                       hot_table(stretchH = "all", highlightRow = TRUE) %>%
+                       hot_context_menu(FALSE) %>%
+                       hot_cols(readOnly = TRUE) %>%
+                       hot_col("Statistic", renderer = "
+                         function(instance, td, row, col, prop, value, cellProperties) {
+                           td.innerHTML = value;
+                           return td;
+                         }
+                       ")
+                     
+                   } else if (active_test() == 12) {
+                     
+                     # One-Way ANOVA
+                     tbl <- as.data.frame(t(stats$data_table[1, , drop = FALSE]))
+                     tbl$Statistic <- rownames(tbl)
+                     rownames(tbl) <- NULL
+                     tbl <- tbl[, c("Statistic", names(tbl)[1])]
+                     names(tbl)[2] <- "Value"
+                     
+                     label_map <- c(
+                       H0 = "H<sub>0</sub>",
+                       H1 = "H<sub>1</sub>"
+                     )
+                     tbl$Statistic <- ifelse(
+                       tbl$Statistic %in% names(label_map),
+                       label_map[tbl$Statistic],
+                       tbl$Statistic
+                     )
+                     
+                     ht <- rhandsontable(
+                       tbl,
+                       rowHeaders = FALSE,
+                       width = "100%",
+                       useTypes = FALSE
+                     ) %>%
+                       hot_table(stretchH = "all", highlightRow = TRUE) %>%
+                       hot_context_menu(FALSE) %>%
+                       hot_cols(readOnly = TRUE) %>%
+                       hot_col("Statistic", renderer = "
+                         function(instance, td, row, col, prop, value, cellProperties) {
+                           td.innerHTML = value;
+                           return td;
+                         }
+                       ")
+                     
+                   } else if (active_test() == 13) {
+                     
+                     # Multiple Comparisons
+                     tbl <- as.data.frame(t(stats$data_table[1, , drop = FALSE]))
+                     tbl$Statistic <- rownames(tbl)
+                     rownames(tbl) <- NULL
+                     tbl <- tbl[, c("Statistic", names(tbl)[1])]
+                     names(tbl)[2] <- "Value"
+                     
+                     header_labels <- c("Planned Comparisons", "Post-Hoc Comparisons")
+                     header_rows_r <- which(tbl$Statistic %in% header_labels)
+                     header_rows_js <- header_rows_r - 1
+                     
+                     merge_list <- lapply(header_rows_js, function(r) {
+                       list(row = r, col = 0, rowspan = 1, colspan = 2)
+                     })
+                     
+                     bold_rows_js <- paste(header_rows_js, collapse = ",")
+                     
+                     ht <- rhandsontable(
+                       tbl,
+                       rowHeaders = FALSE,
+                       width = "100%",
+                       useTypes = FALSE
+                     ) %>%
+                       hot_table(
+                         stretchH = "all",
+                         highlightRow = TRUE,
+                         mergeCells = merge_list
+                       ) %>%
+                       hot_context_menu(FALSE) %>%
+                       hot_cols(readOnly = TRUE) %>%
+                       hot_col("Statistic", renderer = paste0("
+                         function(instance, td, row, col, prop, value, cellProperties) {
+                           Handsontable.renderers.TextRenderer.apply(this, arguments);
+                           var headerRows = [", bold_rows_js, "];
+                           if (headerRows.includes(row)) {
+                             td.style.fontWeight = 'bold';
+                             td.style.textAlign = 'center';
+                           }
+                           return td;
+                         }
+                       "))
+                     
                    } else {
                      
                      tbl <- as.data.frame(t(stats$data_table[1, , drop = FALSE]))
@@ -226,8 +410,6 @@ observe_events = function(input, output, stats, plotdata, active_test){
                        hot_cols(readOnly = TRUE)
                      
                      if (active_test() == 3) {
-                       ht <- ht %>% hot_col("Value", format = "0.0000")
-                     } else if (active_test() == 7) {
                        ht <- ht %>% hot_col("Value", format = "0.0000")
                      }
                    }

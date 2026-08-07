@@ -85,9 +85,9 @@ chi_squared_homoind <- function(input, output, stats, plotdata) {
   p_levels <- p_levels[ord]
   
   if (chi_sq < crit_vals[1]) {
-    p_display <- "p > .50"
+    p_display <- "> .50"
   } else if (chi_sq >= tail(crit_vals, 1)) {
-    p_display <- "p < .001"
+    p_display <- "< .001"
   } else {
     for (i in 1:(length(crit_vals) - 1)) {
       if (chi_sq >= crit_vals[i] && chi_sq < crit_vals[i + 1]) {
@@ -95,9 +95,9 @@ chi_squared_homoind <- function(input, output, stats, plotdata) {
         p_low  <- p_levels[i + 1]
         
         if (p_high > .05) {
-          p_display <- paste0("p > ", format(p_low, nsmall = 3))
+          p_display <- paste0("> ", format(p_low, nsmall = 3))
         } else {
-          p_display <- paste0("p < ", format(p_high, nsmall = 3))
+          p_display <- paste0("< ", format(p_high, nsmall = 3))
         }
         break
       }
@@ -147,7 +147,7 @@ chi_squared_homoind <- function(input, output, stats, plotdata) {
   # ANSWER TABLE
   # --------------------------------------------------------------
   answer_table <- data.frame(
-    Statistic = c("Group 1", "Group 2", "Column Sums", "Chi-square", "Phi", "p-value"),
+    Statistic = c("Group 1", "Group 2", "Column Sums", "\u03c7\u00b2", "Cramer's V", "p(obs)"),
     rbind(
       formatted_with_row_totals,
       col_totals_row,

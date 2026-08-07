@@ -25,12 +25,12 @@ power_n <- function(input, output, stats, plotdata) {
   # --------------------------------------------------------------
   # Create data
   # --------------------------------------------------------------
-
+  
   #Determine Design
   alpha_value = .05
   
   design = if (runif(1) < .5) "related samples" else "independent samples"
-
+  
   #Determine Cohen's d
   d = sample(seq(-1, 1, by = 0.05), 1)
   while (d == 0) {
@@ -59,6 +59,8 @@ power_n <- function(input, output, stats, plotdata) {
     power = power,
     d = d
   )
+  names(data)[names(data) == "alpha"] <- "p(\u03b1)"
+  names(data)[names(data) == "power"] <- "Power (1-\u03b2)"
   
   # --------------------------------------------------------------
   # Create Answer key
@@ -67,12 +69,13 @@ power_n <- function(input, output, stats, plotdata) {
   delta = power_table$delta[power_index]
   n = round((delta/d)^2, 4)
   n = round(k^2 * n, 4)
-    
+  
   statistics = data.frame(
     k = k,
     delta = delta,
     n = ceiling(n)
   )
+  names(statistics)[names(statistics) == "delta"] <- "\u03b4"
   
   # --------------------------------------------------------------
   # Outputs
@@ -108,4 +111,3 @@ power_n <- function(input, output, stats, plotdata) {
     
   })
 }
-  

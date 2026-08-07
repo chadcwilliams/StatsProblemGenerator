@@ -118,7 +118,7 @@ power_power <- function(input, output, stats, plotdata) {
     match_delta <- round(abs(delta_computed), 2) ==
       round(abs(delta), 2)
   }
-
+  
   d <- round(d, 4)
   delta_computed <- round(delta_computed, 4)
   
@@ -136,6 +136,9 @@ power_power <- function(input, output, stats, plotdata) {
       mean_diff = round(mean_post - mean_pre, 4),
       sd_diff = round(sd_diff,4)
     )
+    names(data)[names(data) == "alpha"] <- "p(\u03b1)"
+    names(data)[names(data) == "mean_diff"] <- "D\u0304"
+    names(data)[names(data) == "sd_diff"] <- "s<sub>D</sub>"
     
   } else {
     
@@ -149,6 +152,12 @@ power_power <- function(input, output, stats, plotdata) {
       mean2 = round(mean2,2),
       sp = round(sp,2)
     )
+    names(data)[names(data) == "alpha"] <- "p(\u03b1)"
+    names(data)[names(data) == "n_k"] <- "n<sub>k</sub>"
+    names(data)[names(data) == "n_t"] <- "n<sub>t</sub>"
+    names(data)[names(data) == "mean1"] <- "x\u0304\u2081"
+    names(data)[names(data) == "mean2"] <- "x\u0304\u2082"
+    names(data)[names(data) == "sp"] <- "s\u209a"
   }
   
   # --------------------------------------------------------------
@@ -178,6 +187,8 @@ power_power <- function(input, output, stats, plotdata) {
     delta = round(delta_computed,2),
     power = power
   )
+  names(statistics)[names(statistics) == "delta"] <- "\u03b4"
+  names(statistics)[names(statistics) == "power"] <- "Power (1-\u03b2)"
   
   # --------------------------------------------------------------
   # Outputs
@@ -199,7 +210,12 @@ power_power <- function(input, output, stats, plotdata) {
       rowHeaders = FALSE,
       width = "100%"
     ) %>%
-      hot_col("Variable", readOnly = TRUE) %>%
+      hot_col("Variable", readOnly = TRUE, renderer = "
+        function(instance, td, row, col, prop, value, cellProperties) {
+          td.innerHTML = value;
+          return td;
+        }
+      ") %>%
       hot_col("Value", format = "0.000") %>%
       hot_table(
         stretchH = "all",

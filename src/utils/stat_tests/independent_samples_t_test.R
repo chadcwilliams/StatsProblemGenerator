@@ -33,7 +33,7 @@ independent_samples_t_test <- function(input, output, stats, plotdata) {
   # Enforce value range bounds
   raw$group1 <- pmin(pmax(raw$group1, input$value_range[1]), input$value_range[2])
   raw$group2 <- pmin(pmax(raw$group2, input$value_range[1]), input$value_range[2])
-
+  
   # --------------------------------------------------------------
   # Direction
   # --------------------------------------------------------------
@@ -64,7 +64,7 @@ independent_samples_t_test <- function(input, output, stats, plotdata) {
   data$n1 = input$num_of_participants
   data$n2 = input$num_of_participants
   data$Mean1 = c(round(mean(data$Data1),4),
-                  rep(NA, input$num_of_participants - 1))
+                 rep(NA, input$num_of_participants - 1))
   data$Mean2 = c(round(mean(data$Data2),4),
                  rep(NA, input$num_of_participants - 1)) 
   data$SS1 = round(sum(((data$Data1 - mean(data$Data1))^2)),4)
@@ -118,20 +118,34 @@ independent_samples_t_test <- function(input, output, stats, plotdata) {
   statistics <- data.frame(
     Direction       = direction_label,
     p_alpha         = .05,
-    t_Crit          = t_crit,
+    `t(crit)`       = t_crit,
     df              = df,
     Mean_1          = round(x_bar_1, 4),
     Mean_2          = round(x_bar_2, 4),
     SS_1            = round(data$SS1, 4),
     SS_2            = round(data$SS2, 4),
     pooled_variance = round(var_p, 4),
-    SE_pooled       = round(SE_p, 4),
-    t_obs           = round(t_obs, 4),
-    p_obs           = round(p_obs, 4),
+    `t(obs)`        = round(t_obs, 4),
+    `p(obs)`        = round(p_obs, 4),
     r_squared       = round((t_obs^2) / (t_obs^2 + df), 4),
     H0              = H0,
-    H1              = H1
+    H1              = H1,
+    check.names = FALSE
   )
+  names(statistics)[names(statistics) == "p_alpha"] <- "p(\u03b1)"
+  names(statistics)[names(statistics) == "Mean_1"] <- "x\u0304\u2081"
+  names(statistics)[names(statistics) == "Mean_2"] <- "x\u0304\u2082"
+  names(statistics)[names(statistics) == "SS_1"] <- "SS\u2081"
+  names(statistics)[names(statistics) == "SS_2"] <- "SS\u2082"
+  names(statistics)[names(statistics) == "pooled_variance"] <- "s\u00b2\u209a"
+  names(statistics)[names(statistics) == "r_squared"] <- "r\u00b2"
+  statistics[["s<sub>x\u0304<sub>1</sub>-x\u0304<sub>2</sub></sub>"]] <- round(SE_p, 4)
+  statistics <- statistics[, c(
+    "Direction", "p(\u03b1)", "t(crit)", "df",
+    "x\u0304\u2081", "x\u0304\u2082", "SS\u2081", "SS\u2082",
+    "s\u00b2\u209a", "s<sub>x\u0304<sub>1</sub>-x\u0304<sub>2</sub></sub>",
+    "t(obs)", "p(obs)", "r\u00b2", "H0", "H1"
+  )]
   
   # --------------------------------------------------------------
   # Outputs
@@ -143,6 +157,23 @@ independent_samples_t_test <- function(input, output, stats, plotdata) {
     tbl <- as.data.frame(t(data[1, 3:ncol(data)]))
     tbl$Variable <- rownames(tbl)
     rownames(tbl) <- NULL
+    
+    label_map <- c(
+      mu     = "\u03bc",
+      p_alpha = "p(\u03b1)",
+      n1     = "n\u2081",
+      n2     = "n\u2082",
+      Mean1  = "x\u0304\u2081",
+      Mean2  = "x\u0304\u2082",
+      SS1    = "SS\u2081",
+      SS2    = "SS\u2082"
+    )
+    tbl$Variable <- ifelse(
+      tbl$Variable %in% names(label_map),
+      label_map[tbl$Variable],
+      tbl$Variable
+    )
+    
     tbl <- tbl[, c("Variable", names(tbl)[1])]
     names(tbl)[2] <- "Value"
     

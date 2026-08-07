@@ -46,14 +46,14 @@ related_samples_t_test <- function(input, output, stats, plotdata) {
     direction <- 3
     direction_label <- "One-Tail (higher)"
   }
-
+  
   # --------------------------------------------------------------
   # Create data
   # --------------------------------------------------------------
   
   data = data.frame(
-        Data = raw$Diff
-    )
+    Data = raw$Diff
+  )
   data$mu[1] = 0
   data$p_alpha = c(.05, rep(NA, input$num_of_participants - 1))
   data$direction = c(direction_label, rep(NA, input$num_of_participants - 1))
@@ -69,7 +69,7 @@ related_samples_t_test <- function(input, output, stats, plotdata) {
   D_bar <- mean(data$Data)
   SD_D  <- sd(data$Data)
   SE_D  <- SD_D / sqrt(input$num_of_participants)
-
+  
   t_obs <- D_bar / SE_D
   df    <- input$num_of_participants - 1
   
@@ -104,16 +104,20 @@ related_samples_t_test <- function(input, output, stats, plotdata) {
   statistics <- data.frame(
     Direction       = direction_label,
     p_alpha         = .05,
-    t_Crit          = t_crit,
+    `t(crit)`       = t_crit,
     df              = df,
     Mean_Difference = round(D_bar, 4),
-    SD_Difference   = round(SD_D, 4),
-    SE_Difference   = round(SE_D, 4),
-    t_obs           = round(t_obs, 4),
-    p_obs           = round(p_obs, 4),
+    `s<sub>D</sub>` = round(SD_D, 4),
+    SE_D            = round(SE_D, 4),
+    `t(obs)`        = round(t_obs, 4),
+    `p(obs)`        = round(p_obs, 4),
     H0              = H0,
-    H1              = H1
+    H1              = H1,
+    check.names = FALSE
   )
+  names(statistics)[names(statistics) == "p_alpha"] <- "p(\u03b1)"
+  names(statistics)[names(statistics) == "Mean_Difference"] <- "D\u0304"
+  names(statistics)[names(statistics) == "SE_D"] <- "s<sub>D\u0304</sub>"
   
   # --------------------------------------------------------------
   # Plot data
@@ -130,6 +134,19 @@ related_samples_t_test <- function(input, output, stats, plotdata) {
     tbl <- as.data.frame(t(data[1, 2:ncol(data)]))
     tbl$Variable <- rownames(tbl)
     rownames(tbl) <- NULL
+    
+    label_map <- c(
+      mu     = "\u03bc<sub>D\u0304</sub>",
+      p_alpha = "p(\u03b1)",
+      D_Mean = "D\u0304",
+      SS     = "SS<sub>D</sub>"
+    )
+    tbl$Variable <- ifelse(
+      tbl$Variable %in% names(label_map),
+      label_map[tbl$Variable],
+      tbl$Variable
+    )
+    
     tbl <- tbl[, c("Variable", names(tbl)[1])]
     names(tbl)[2] <- "Value"
     
@@ -138,7 +155,12 @@ related_samples_t_test <- function(input, output, stats, plotdata) {
       rowHeaders = FALSE,
       width = "100%"
     ) %>%
-      hot_col("Variable", readOnly = TRUE) %>%
+      hot_col("Variable", readOnly = TRUE, renderer = "
+        function(instance, td, row, col, prop, value, cellProperties) {
+          td.innerHTML = value;
+          return td;
+        }
+      ") %>%
       hot_col("Value", format = "0.000") %>%
       hot_table(
         stretchH = "all",
@@ -146,7 +168,7 @@ related_samples_t_test <- function(input, output, stats, plotdata) {
       )
   })
   
-
+  
   output$stats_display <- renderRHandsontable({
     
   })

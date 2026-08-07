@@ -17,20 +17,16 @@ multiple_comparisons <- function(input, output, stats, plotdata) {
   range  <- input$value_range[2] - input$value_range[1]
   center <- input$value_range[1] + range / 2
   
-  # Slightly larger separation than before
   offset <- runif(1, range/16, range/10)
   
-  # Create base sequence
   base_means <- seq(center - offset,
                     center + offset,
                     length.out = k)
   
-  # Small jitter (kept subtle)
   jitter_amount <- runif(k, -range/40, range/40)
   
   group_means <- base_means + jitter_amount
   
-  # Keep within bounds
   group_means <- pmin(pmax(group_means,
                            input$value_range[1] + 1),
                       input$value_range[2] - 1)
@@ -56,18 +52,12 @@ multiple_comparisons <- function(input, output, stats, plotdata) {
     raw_data[[i]] <- temp
   }
   
-  # --------------------------------------------------------------
-  # Prepare data for plotting
-  # --------------------------------------------------------------
   plotdata$data <- data.frame(
     Value = unlist(raw_data),
     Group = factor(rep(paste0("Group ", seq_len(k)),
                        each = n_per_group))
   )
   
-  # --------------------------------------------------------------
-  # Compute group descriptives (n, mean, SS)
-  # --------------------------------------------------------------
   n_vec  <- rep(n_per_group, k)
   mean_vec <- rep(NA, k)
   SS_vec   <- rep(NA, k)
@@ -84,33 +74,17 @@ multiple_comparisons <- function(input, output, stats, plotdata) {
     SS    = SS_vec
   )
   
-  # --------------------------------------------------------------
-  # Grand Mean (from group means)
-  # --------------------------------------------------------------
   weighted_totals <- round(n_vec * mean_vec, 4)
   grand_mean <- round(sum(weighted_totals) / N, 4)
   
-  # --------------------------------------------------------------
-  # Sum of Squares Between
-  # --------------------------------------------------------------
   SSB_components <- round(n_vec * (mean_vec - grand_mean)^2, 4)
   SS_between <- round(sum(SSB_components), 4)
   
-  # --------------------------------------------------------------
-  # Sum of Squares Within
-  # --------------------------------------------------------------
   SS_within <- round(sum(SS_vec), 4)
   
-  # --------------------------------------------------------------
-  # Degrees of Freedom
-  # --------------------------------------------------------------
   df_between <- k - 1
   df_within  <- N - k
   df_total   <- N - 1
-  
-  # --------------------------------------------------------------
-  # Critical F value (right-tailed)
-  # --------------------------------------------------------------
   
   alpha <- 0.05
   
@@ -122,54 +96,30 @@ multiple_comparisons <- function(input, output, stats, plotdata) {
     4
   )
   
-  # --------------------------------------------------------------
-  # Mean Squares
-  # --------------------------------------------------------------
   MS_between <- round(SS_between / df_between, 4)
   MS_within  <- round(SS_within / df_within, 4)
   
-  # --------------------------------------------------------------
-  # F statistic
-  # --------------------------------------------------------------
   F_obs <- round(MS_between / MS_within, 4)
   
-  # --------------------------------------------------------------
-  # p-value
-  # --------------------------------------------------------------
   p_obs <- round(pf(F_obs, df_between, df_within,
                     lower.tail = FALSE), 4)
   
-  # --------------------------------------------------------------
-  # Effect Size (eta squared)
-  # --------------------------------------------------------------
   SS_total <- round(SS_between + SS_within, 4)
   eta_sq <- round(SS_between / SS_total, 4)
   
-  # --------------------------------------------------------------
-  # Cohen's f
-  # --------------------------------------------------------------
   cohen_f = round(sqrt(eta_sq / (1 - eta_sq)), 4)
   
-  # --------------------------------------------------------------
-  # Decision
-  # --------------------------------------------------------------
   H0 <- if (p_obs < .05) "Reject" else "Retain"
   H1 <- if (p_obs < .05) "Accept" else "Suspend"
   
-  # --------------------------------------------------------------
-  # Determine planned comparison information
-  # --------------------------------------------------------------
   total_num_comparisons = k*(k-1)/2
   total_planned_comparisons = k-1
-
+  
   groups <- seq(1, k)
   all_comparisons <- combn(groups, 2, simplify = FALSE)
   planned_comparisons <- split(groups, ceiling(seq_along(groups) / 2))
   planned_comparisons <- sample(all_comparisons, total_planned_comparisons)
   
-  # --------------------------------------------------------------
-  # Determine post-hoc comparison information
-  # --------------------------------------------------------------
   if (runif(1) < 1/3) {
     comparison_type <- "Control (Group 1) vs. Other Groups"
     post_hoc_test = "Dunnett's Test"
@@ -182,14 +132,10 @@ multiple_comparisons <- function(input, output, stats, plotdata) {
     }
   }
   
-  #Check for significance 
   if (H0 == "Retain") {
     post_hoc_test <- "None, ANOVA was not significant"
   }
   
-  # --------------------------------------------------------------
-  # Add info to data table
-  # --------------------------------------------------------------
   data$df_e = rep(" ", k)
   data$df_e[[1]] = df_within
   data$MS_e = rep(" ", k)
@@ -205,25 +151,24 @@ multiple_comparisons <- function(input, output, stats, plotdata) {
   data$planned_comparisons <- c(pc_labels, rep(" ", n - k_pc))
   data$post_hocs <- rep(" ", n)
   data$post_hocs[[1]] <- comparison_type
-
-  # --------------------------------------------------------------
-  # Planned Comparisons
-  # --------------------------------------------------------------
+  
   dunns_table <- read.csv("materials/dunns_table.csv", header = TRUE)
   c = paste('comparisons_', total_planned_comparisons, sep = '')
   df_row = which.min(abs(dunns_table$df - df_within))
   dunns_crit <- dunns_table[df_row, c]
-
+  
   dunns_t = round(2 * MS_within, 4)
   dunns_t = round(dunns_t/n_per_group, 4)
   dunns_t = round(sqrt(dunns_t), 4)
   dunns_t = round(dunns_crit * dunns_t, 4)
-
+  
   statistics <- data.frame(
     PLANNED_COMPARISONS = "",
     Dunns_t = dunns_t
   )
-
+  names(statistics)[names(statistics) == "PLANNED_COMPARISONS"] <- "Planned Comparisons"
+  names(statistics)[names(statistics) == "Dunns_t"] <- "Dunn's t(crit)"
+  
   for (i in 1:length(planned_comparisons)) {
     comp <- planned_comparisons[[i]]
     group1 <- comp[1]
@@ -234,16 +179,15 @@ multiple_comparisons <- function(input, output, stats, plotdata) {
     statistics[[planned_label]] <- paste0(mean_diff, mean_significance)
   }
   
-  # --------------------------------------------------------------
-  # Post-Hoc Comparisons
-  # --------------------------------------------------------------
   if (post_hoc_test == "None, ANOVA was not significant") {
     pc_crit <- NA
     pc_t <- NA
     statistics$POST_HOC_COMPARISONS <- ""
     statistics$Post_hoc_test <- post_hoc_test
+    names(statistics)[names(statistics) == "POST_HOC_COMPARISONS"] <- "Post-Hoc Comparisons"
+    names(statistics)[names(statistics) == "Post_hoc_test"] <- "Post-Hoc Test"
   } else {
-  
+    
     mult = 2
     if (post_hoc_test == "Tukey HSD") {
       mult <- 1
@@ -262,23 +206,29 @@ multiple_comparisons <- function(input, output, stats, plotdata) {
       pc_crit <- pc_table[df_row, "t_critical_two_tailed_0.05"]
     } else {
       pc_crit <- pc_table[df_row, paste0("comparisons_", k)]
-        
+      
     }
     
     pc_t = round(mult * MS_within, 4)
     pc_t = round(pc_t/n_per_group, 4)
     pc_t = round(sqrt(pc_t), 4)
     pc_t = round(pc_crit * pc_t, 4)
-
+    
     all_pairs <- combn(1:k, 2, simplify = FALSE)
+    if (post_hoc_test == "Dunnett's Test") {
+      all_pairs <- Filter(function(x) 1 %in% x, all_pairs)
+    }
     pair_key <- function(x) paste(sort(x), collapse = "_")
     all_keys <- sapply(all_pairs, pair_key)
     planned_keys <- sapply(planned_comparisons, pair_key)
     remaining_pairs <- all_pairs[!all_keys %in% planned_keys]  
-  
+    
     statistics$POST_HOC_COMPARISONS <- ""
     statistics$Post_hoc_test <- post_hoc_test
     statistics$crit_diff_value <- pc_t
+    names(statistics)[names(statistics) == "POST_HOC_COMPARISONS"] <- "Post-Hoc Comparisons"
+    names(statistics)[names(statistics) == "Post_hoc_test"] <- "Post-Hoc Test"
+    names(statistics)[names(statistics) == "crit_diff_value"] <- "Critical Difference"
     
     for (i in seq_along(remaining_pairs)) {
       
@@ -298,10 +248,6 @@ multiple_comparisons <- function(input, output, stats, plotdata) {
     }
   }
   
-  # --------------------------------------------------------------
-  # Outputs
-  # --------------------------------------------------------------
-  
   stats$data_table <- statistics
   output$data_display <- renderRHandsontable({
     
@@ -309,6 +255,21 @@ multiple_comparisons <- function(input, output, stats, plotdata) {
     colnames(tbl) <- data$Group
     tbl$Statistic <- rownames(tbl)
     rownames(tbl) <- NULL
+    
+    label_map <- c(
+      Mean = "x\u0304",
+      df_e = "df<sub>E</sub>",
+      MS_e = "MS<sub>E</sub>",
+      F    = "F(obs)",
+      p    = "p(obs)",
+      planned_comparisons = "Planned Comparisons",
+      post_hocs           = "Post-Hocs"
+    )
+    tbl$Statistic <- ifelse(
+      tbl$Statistic %in% names(label_map),
+      label_map[tbl$Statistic],
+      tbl$Statistic
+    )
     
     tbl <- tbl[, c("Statistic", setdiff(names(tbl), "Statistic"))]
     
@@ -318,7 +279,12 @@ multiple_comparisons <- function(input, output, stats, plotdata) {
       colHeaders = c("", data$Group),
       width = "100%"
     ) %>%
-      hot_col(1, readOnly = TRUE) %>%
+      hot_col(1, readOnly = TRUE, renderer = "
+        function(instance, td, row, col, prop, value, cellProperties) {
+          td.innerHTML = value;
+          return td;
+        }
+      ") %>%
       hot_table(
         stretchH = "all",
         highlightRow = TRUE

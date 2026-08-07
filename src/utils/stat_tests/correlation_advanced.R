@@ -46,6 +46,8 @@ correlation_advanced = function(input, output, stats, plotdata) {
   data[] <- lapply(data, function(x) {
     if (is.numeric(x)) round(x, 4) else x
   })
+  names(data)[names(data) == "rho"] <- "\u03c1"
+  names(data)[names(data) == "p_alpha"] <- "p(\u03b1)"
   
   #critical values
   df = input$num_of_participants - 2
@@ -86,7 +88,14 @@ correlation_advanced = function(input, output, stats, plotdata) {
   statistics[] <- lapply(statistics, function(x) {
     if (is.numeric(x)) round(x, 4) else x
   })
-
+  
+  names(statistics)[names(statistics) == "r_crit"] <- "r(crit)"
+  names(statistics)[names(statistics) == "t_crit"] <- "t(crit)"
+  names(statistics)[names(statistics) == "se_r"] <- "s<sub>r</sub>"
+  names(statistics)[names(statistics) == "t_obs"] <- "t(obs)"
+  names(statistics)[names(statistics) == "p_obs"] <- "p(obs)"
+  names(statistics)[names(statistics) == "r_squared"] <- "r\u00b2"
+  
   #Set Outputs
   stats$data_table = statistics
   

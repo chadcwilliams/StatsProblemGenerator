@@ -327,9 +327,9 @@ factorial_anova <- function(input, output, stats, plotdata) {
   statistics <- data.frame(
     Source = c(
       "Between-Subjects (Cells)",
-      "Column (Factor A)",
-      "Row (Factor B)",
-      "Interaction",
+      "\u00a0\u00a0\u00a0Column (Factor A)",
+      "\u00a0\u00a0\u00a0Row (Factor B)",
+      "\u00a0\u00a0\u00a0Interaction",
       "Within-Subjects (Error)",
       "Total"
     ),
@@ -390,6 +390,8 @@ factorial_anova <- function(input, output, stats, plotdata) {
       NA
     )
   )
+  names(statistics)[names(statistics) == "eta2"] <- "\u03b7\u00b2"
+  names(statistics)[names(statistics) == "R2"] <- "R\u00b2"
   
   # --------------------------------------------------------------
   # Outputs

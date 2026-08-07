@@ -101,12 +101,12 @@ chi_squared_goodness <- function(input, output, stats, plotdata) {
   # Case 1: smaller than smallest chi-square
   if (chi_sq < crit_vals[1]) {
     
-    p_display <- "p > .50"
+    p_display <- "> .50"
     
     # Case 2: larger than largest chi-square
   } else if (chi_sq >= tail(crit_vals, 1)) {
     
-    p_display <- "p < .001"
+    p_display <- "< .001"
     
   } else {
     
@@ -123,12 +123,12 @@ chi_squared_goodness <- function(input, output, stats, plotdata) {
         if (p_high > .05) {
           
           # non-significant region
-          p_display <- paste0("p > ", format(p_low, nsmall = 3))
+          p_display <- paste0("> ", format(p_low, nsmall = 3))
           
         } else {
           
           # significant region
-          p_display <- paste0("p < ", format(p_high, nsmall = 3))
+          p_display <- paste0("< ", format(p_high, nsmall = 3))
         }
         break
       }
@@ -176,7 +176,7 @@ chi_squared_goodness <- function(input, output, stats, plotdata) {
   # ANSWER TABLE
   # --------------------------------------------------------------
   answer_table <- data.frame(
-    Statistic = c("Observed", "Expected", "Chi-square", "p-value"),
+    Statistic = c("O", "E", "\u03c7\u00b2", "p(obs)"),
     rbind(
       observed,
       round(expected, 4),

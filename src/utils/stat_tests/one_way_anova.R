@@ -162,7 +162,7 @@ one_way_anova <- function(input, output, stats, plotdata) {
   statistics <- data.frame(
     k             = k,
     n_total       = N,
-    F_crit        = F_crit,
+    `F(crit)`     = F_crit,
     grand_mean    = grand_mean,
     SS_g          = SS_between,
     SS_e          = SS_within,
@@ -170,13 +170,24 @@ one_way_anova <- function(input, output, stats, plotdata) {
     df_e          = df_within,
     MS_g          = MS_between,
     MS_e          = MS_within,
-    F_obs         = F_obs,
-    p             = p_obs,
+    `F(obs)`      = F_obs,
+    `p(obs)`      = p_obs,
     eta_squared   = eta_sq,
     cohen_f       = cohen_f,
     H0            = H0,
-    H1            = H1
+    H1            = H1,
+    check.names = FALSE
   )
+  names(statistics)[names(statistics) == "n_total"] <- "n<sub>t</sub>"
+  names(statistics)[names(statistics) == "grand_mean"] <- "x\u0304<sub>G</sub>"
+  names(statistics)[names(statistics) == "SS_g"] <- "SS<sub>G</sub>"
+  names(statistics)[names(statistics) == "SS_e"] <- "SS<sub>E</sub>"
+  names(statistics)[names(statistics) == "df_g"] <- "df<sub>G</sub>"
+  names(statistics)[names(statistics) == "df_e"] <- "df<sub>E</sub>"
+  names(statistics)[names(statistics) == "MS_g"] <- "MS<sub>G</sub>"
+  names(statistics)[names(statistics) == "MS_e"] <- "MS<sub>E</sub>"
+  names(statistics)[names(statistics) == "eta_squared"] <- "\u03b7\u00b2"
+  names(statistics)[names(statistics) == "cohen_f"] <- "Cohen's \u0192"
   
   # --------------------------------------------------------------
   # Outputs
@@ -189,6 +200,8 @@ one_way_anova <- function(input, output, stats, plotdata) {
     colnames(tbl) <- data$Group
     tbl$Statistic <- rownames(tbl)
     rownames(tbl) <- NULL
+    
+    tbl$Statistic <- ifelse(tbl$Statistic == "Mean", "x\u0304", tbl$Statistic)
     
     tbl <- tbl[, c("Statistic", setdiff(names(tbl), "Statistic"))]
     

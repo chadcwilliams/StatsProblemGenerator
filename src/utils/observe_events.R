@@ -384,10 +384,6 @@ observe_events = function(input, output, stats, plotdata, active_test){
                      header_rows_r <- which(tbl$Statistic %in% header_labels)
                      header_rows_js <- header_rows_r - 1
                      
-                     merge_list <- lapply(header_rows_js, function(r) {
-                       list(row = r, col = 0, rowspan = 1, colspan = 2)
-                     })
-                     
                      bold_rows_js <- paste(header_rows_js, collapse = ",")
                      
                      ht <- rhandsontable(
@@ -399,7 +395,6 @@ observe_events = function(input, output, stats, plotdata, active_test){
                        hot_table(
                          stretchH = "all",
                          highlightRow = TRUE,
-                         mergeCells = merge_list
                        ) %>%
                        hot_context_menu(FALSE) %>%
                        hot_cols(readOnly = TRUE) %>%

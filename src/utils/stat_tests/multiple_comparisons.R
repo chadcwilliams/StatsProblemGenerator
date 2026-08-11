@@ -179,7 +179,7 @@ multiple_comparisons <- function(input, output, stats, plotdata) {
     mean_diff <- round(mean_vec[group1] - mean_vec[group2], 4)
     mean_significance = if (abs(mean_diff) > abs(dunns_t)) ", (p < .05)" else ", (p > .05)"
     planned_label = paste0("Group ", group1, " vs. Group ", group2)
-    statistics[[planned_label]] <- paste0(mean_diff, mean_significance)
+    statistics[[planned_label]] <- paste0(sprintf("%.4f", mean_diff), mean_significance)
   }
   
   if (post_hoc_test == "None, ANOVA was not significant") {
@@ -247,7 +247,7 @@ multiple_comparisons <- function(input, output, stats, plotdata) {
         " (p > .05)"
       }
       comparison_label <- paste0("Group ", group1, " vs. Group ", group2)
-      statistics[[comparison_label]] <- paste0(mean_diff, mean_significance)
+      statistics[[comparison_label]] <- paste0(sprintf("%.4f", mean_diff), mean_significance)
     }
   }
   

@@ -15,6 +15,13 @@ observe_events = function(input, output, stats, plotdata, active_test){
     }, character(1))
   }
   
+  # --------------------------------------------------------------
+  # Shared pale colour palette used across every plot below.
+  # --------------------------------------------------------------
+  pal_two   <- c("#F4B8A2", "#A8E0C4")                                   # 2-group fills (coral / mint)
+  pal_multi <- c("#F4B8A2", "#A8E0C4", "#A8C4F0", "#F0DFA0", "#CBB6EA")  # up to 5 groups
+  pal_accent <- "#C97B6A"                                                # reference lines / fit lines
+  
   observeEvent(input$answers,
                {
                  output$stats_display <- renderRHandsontable({
@@ -22,6 +29,23 @@ observe_events = function(input, output, stats, plotdata, active_test){
                    if (active_test() == 14) {
                      
                      tbl <- stats$data_table
+                     
+                     # useTypes = FALSE below renders every column as plain
+                     # text, so hot_col(format = "0.0000") has no effect
+                     # (that option only applies to Handsontable's numeric
+                     # cell type). Pad the decimal columns to 4 places
+                     # ourselves before building the table. "p" is excluded
+                     # since it already holds text like "< .05" / "> .05".
+                     decimal_cols <- c("SS", "MS", "F", "\u03b7\u00b2", "R\u00b2")
+                     for (col in decimal_cols) {
+                       if (col %in% names(tbl)) {
+                         tbl[[col]] <- ifelse(
+                           is.na(tbl[[col]]),
+                           NA,
+                           sprintf("%.4f", as.numeric(tbl[[col]]))
+                         )
+                       }
+                     }
                      
                      ht <- rhandsontable(
                        tbl,
@@ -31,11 +55,7 @@ observe_events = function(input, output, stats, plotdata, active_test){
                      ) %>%
                        hot_table(stretchH = "all", highlightRow = TRUE) %>%
                        hot_context_menu(FALSE) %>%
-                       hot_cols(readOnly = TRUE) %>%
-                       hot_col("SS", format = "0.0000") %>%
-                       hot_col("MS", format = "0.0000") %>%
-                       hot_col("F", format = "0.0000") %>%
-                       hot_col("p", format = "0.0000")
+                       hot_cols(readOnly = TRUE)
                      
                    } else if (active_test() == 1) {
                      
@@ -448,7 +468,7 @@ observe_events = function(input, output, stats, plotdata, active_test){
                        geom_line() +
                        geom_vline(xintercept = round((
                          stats$p_value * 100
-                       )) + .5, color = 'red') +
+                       )) + .5, color = pal_accent) +
                        theme_void()
                      
                    } else if (active_test() == 5 || active_test() == 6) {
@@ -460,7 +480,34 @@ observe_events = function(input, output, stats, plotdata, active_test){
                          width = 0.1,
                          na.rm = TRUE
                        ) +
-                       scale_fill_manual(values = c("#E27D60", "#85DCB0")) +
+                       scale_fill_manual(values = pal_two) +
+                       scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
+                       ylab("Value") +
+                       theme_classic() +
+                       theme(text = element_text(size = 18), legend.position = "none")
+                     
+                   } else if (active_test() == 7) {
+                     
+                     summary_data <- data.frame(
+                       Condition = factor(c("Pre", "Post", "Difference"),
+                                          levels = c("Pre", "Post", "Difference")),
+                       Mean = c(mean(plotdata$data$Pre),
+                                mean(plotdata$data$Post),
+                                mean(plotdata$data$Diff)),
+                       SD   = c(sd(plotdata$data$Pre),
+                                sd(plotdata$data$Post),
+                                sd(plotdata$data$Diff))
+                     )
+                     
+                     ggplot(summary_data, aes(x = Condition, y = Mean, fill = Condition)) +
+                       geom_hline(yintercept = 0, color = "black", linewidth = 0.5) +
+                       geom_bar(stat = "identity", width = 0.6, color = "black") +
+                       geom_errorbar(
+                         aes(ymin = Mean - SD, ymax = Mean + SD),
+                         width = 0.1,
+                         na.rm = TRUE
+                       ) +
+                       scale_fill_manual(values = pal_multi[1:3]) +
                        scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
                        ylab("Value") +
                        theme_classic() +
@@ -480,9 +527,9 @@ observe_events = function(input, output, stats, plotdata, active_test){
                                yend = max(plotdata$data$Y),
                                xend = stats$data_table$ax +
                                  stats$data_table$bx * max(plotdata$data$Y),
-                               color = "red"
+                               color = pal_accent
                              ),
-                             geom_smooth(method = lm, se = FALSE)
+                             geom_smooth(method = lm, se = FALSE, color = pal_accent)
                            )
                          else NULL
                        ) +
@@ -491,60 +538,125 @@ observe_events = function(input, output, stats, plotdata, active_test){
                      
                    } else if (active_test() == 9) {
                      
-                     rng <- range(
-                       c(plotdata$data$Data1, plotdata$data$Data2),
-                       na.rm = TRUE
+                     summary_data <- data.frame(
+                       Group = factor(c("Group 1", "Group 2"),
+                                      levels = c("Group 1", "Group 2")),
+                       Mean  = c(mean(plotdata$data$Data1), mean(plotdata$data$Data2)),
+                       SD    = c(sd(plotdata$data$Data1),   sd(plotdata$data$Data2))
                      )
                      
-                     ggplot(plotdata$data) +
-                       geom_histogram(aes(x = Data1),
-                                      fill = "#E27D60", alpha = 0.5, binwidth = 1) +
-                       geom_histogram(aes(x = Data2),
-                                      fill = "#85DCB0", alpha = 0.5, binwidth = 1) +
-                       scale_x_continuous(
-                         breaks = floor(rng[1]) : ceiling(rng[2]),
-                         limits = c(floor(rng[1]) - 1, ceiling(rng[2]) + 1)
+                     ggplot(summary_data, aes(x = Group, y = Mean, fill = Group)) +
+                       geom_bar(stat = "identity", width = 0.6, color = "black") +
+                       geom_errorbar(
+                         aes(ymin = Mean - SD, ymax = Mean + SD),
+                         width = 0.1,
+                         na.rm = TRUE
                        ) +
+                       scale_fill_manual(values = pal_two) +
                        scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
-                       ylab("Frequency Count") +
-                       theme_classic()
+                       ylab("Value") +
+                       theme_classic() +
+                       theme(text = element_text(size = 18), legend.position = "none")
                      
-                   } else if (active_test() == 12 || active_test() == 13) {
+                   } else if (active_test() == 12) {
                      
-                     rng <- range(plotdata$data$Value, na.rm = TRUE)
+                     summary_data <- plotdata$data %>%
+                       dplyr::group_by(Group) %>%
+                       dplyr::summarise(
+                         Mean = mean(Value),
+                         SD = sd(Value),
+                         .groups = "drop"
+                       )
                      
-                     ggplot(plotdata$data,
-                            aes(x = Value, fill = Group, colour = Group)) +
-                       geom_density(alpha = 0.3) +
-                       scale_x_continuous(
-                         breaks = floor(rng[1]) : ceiling(rng[2]),
-                         limits = c(floor(rng[1]) - 1,
-                                    ceiling(rng[2]) + 1)
+                     ggplot(summary_data, aes(x = Group, y = Mean, fill = Group)) +
+                       geom_bar(stat = "identity", width = 0.6, color = "black") +
+                       geom_errorbar(
+                         aes(ymin = Mean - SD, ymax = Mean + SD),
+                         width = 0.1,
+                         na.rm = TRUE
                        ) +
+                       scale_fill_manual(values = pal_multi) +
                        scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
-                       ylab("Density") +
-                       theme_classic()
+                       ylab("Value") +
+                       theme_classic() +
+                       theme(text = element_text(size = 18), legend.position = "none")
+                     
+                   } else if (active_test() == 13) {
+                     
+                     summary_data <- plotdata$data %>%
+                       dplyr::group_by(Group) %>%
+                       dplyr::summarise(
+                         Mean = mean(Value),
+                         SD = sd(Value),
+                         .groups = "drop"
+                       )
+                     
+                     ggplot(summary_data, aes(x = Group, y = Mean, fill = Group)) +
+                       geom_bar(stat = "identity", width = 0.6, color = "black") +
+                       geom_errorbar(
+                         aes(ymin = Mean - SD, ymax = Mean + SD),
+                         width = 0.1,
+                         na.rm = TRUE
+                       ) +
+                       scale_fill_manual(values = pal_multi) +
+                       scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
+                       ylab("Value") +
+                       theme_classic() +
+                       theme(text = element_text(size = 18), legend.position = "none")
                      
                    } else if (active_test() == 14) {
                      
                      summary_data <- plotdata$data %>%
                        dplyr::group_by(A, B) %>%
-                       dplyr::summarise(Mean = mean(Value), .groups = "drop")
+                       dplyr::summarise(
+                         Mean = mean(Value),
+                         SD = sd(Value),
+                         .groups = "drop"
+                       )
                      
                      ggplot(summary_data, aes(x = A, y = Mean, fill = B)) +
-                       geom_bar(stat = "identity",
-                                position = position_dodge(width = 0.8)) +
+                       
+                       geom_bar(
+                         stat = "identity",
+                         position = position_dodge(width = 0.8),
+                         width = 0.7,
+                         color = "black"
+                       ) +
+                       
+                       geom_errorbar(
+                         aes(ymin = Mean - SD, ymax = Mean + SD),
+                         position = position_dodge(width = 0.8),
+                         width = 0.15,
+                         na.rm = TRUE
+                       ) +
+                       
+                       scale_fill_manual(
+                         values = pal_two
+                       ) +
+                       
                        scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
-                       theme_classic()
+                       
+                       labs(
+                         x = "Factor A",
+                         y = "Mean",
+                         fill = "Factor B"
+                       ) +
+                       
+                       theme_classic() +
+                       theme(text = element_text(size = 18))
                      
                    } else if (active_test() == 15) {
                      
-                     ggplot(plotdata$data, aes(x = Category)) +
-                       geom_bar(aes(y = Observed),
-                                stat = "identity",
-                                fill = "#E27D60") +
+                     n_categories <- dplyr::n_distinct(plotdata$data$Category)
+                     
+                     ggplot(plotdata$data, aes(x = Category, y = Observed, fill = Category)) +
+                       geom_bar(stat = "identity", color = "black") +
+                       scale_fill_manual(
+                         values = colorRampPalette(pal_multi)(n_categories)
+                       ) +
                        scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
-                       theme_classic()
+                       theme_classic() +
+                       theme(legend.position = "none")
                      
                    } else if (active_test() == 16) {
                      
@@ -560,7 +672,7 @@ observe_events = function(input, output, stats, plotdata, active_test){
                        ) +
                        
                        scale_fill_manual(
-                         values = c("#E27D60", "#85DCB0")
+                         values = pal_two
                        ) +
                        
                        scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
@@ -594,8 +706,8 @@ observe_events = function(input, output, stats, plotdata, active_test){
                    } else {
                      
                      ggplot(aes(x = data), data = plotdata$data) +
-                       geom_histogram(color = "#E27D60",
-                                      fill = "#E8A87C",
+                       geom_histogram(color = "black",
+                                      fill = pal_two[1],
                                       binwidth = 1) +
                        scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
                        theme_classic()

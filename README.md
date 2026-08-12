@@ -2,6 +2,7 @@
 
 Shiny application that generates randomized statistics problems for practice: a data set, a plot, and an answer key, for a selected statistical test.
 
+App: https://chadcwilliams.shinyapps.io/StatsProblemGenerator/
 Repo: https://github.com/chadcwilliams/StatsProblemGenerator
 
 ## Overview
@@ -10,19 +11,9 @@ The app selects a statistical test, generates a random data set matching that te
 
 The dropdowns are labeled "Psyc 300A" and "Psyc 300B" and split the 17 supported tests across a two-course sequence.
 
-## Requirements
-
-R packages: `shiny`, `bslib`, `rhandsontable`, `ggplot2`, `dplyr`, `gridExtra`, `faux`, `rstatix`, `BSDA`.
-
-## Running the app
-
-```r
-shiny::runApp()
-```
-
-Run from the project root (the directory containing `app.R`).
-
 ## Usage
+
+Open the app: https://chadcwilliams.shinyapps.io/StatsProblemGenerator/
 
 1. **Select a test.** Choose one option from either dropdown. Selecting a test in one dropdown clears the other; only one test is active at a time.
 2. **Set parameters.**
@@ -108,6 +99,16 @@ Each test script writes to three shared reactive objects:
 Answer-key rendering, plotting, and PDF generation read from these three objects and are not duplicated per test.
 
 The PDF is built with `grid`/`gridExtra` rather than `rmarkdown`, to avoid a Pandoc/LaTeX dependency on the hosting server.
+
+## Local development
+
+R packages: `shiny`, `bslib`, `rhandsontable`, `ggplot2`, `dplyr`, `gridExtra`, `faux`, `rstatix`, `BSDA`.
+
+```r
+shiny::runApp()
+```
+
+Run from the project root (the directory containing `app.R`).
 
 ## Author
 

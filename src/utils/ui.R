@@ -104,6 +104,24 @@ app_theme = bs_theme(
       margin-bottom: 0.75rem;
     }
 
+    .repo-link {
+      color: #8A93A6;
+      font-size: 0.8rem;
+      font-weight: 500;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 0.4rem;
+      transition: color 0.15s ease, background-color 0.15s ease;
+    }
+    .repo-link:hover {
+      color: #4C6EF5;
+      background-color: rgba(76, 110, 245, 0.08);
+      text-decoration: none;
+    }
+
     .card-body {
       padding: 0.3rem 0.5rem !important;
     }
@@ -140,7 +158,18 @@ UI = function(){
     padding = c(6, 8),
     fillable_mobile = TRUE,
 
-    div(class = "mb-1", h5("Statistics Problem Generator", class = "mb-0 fw-semibold")),
+    div(
+      class = "mb-1 d-flex justify-content-between align-items-center",
+      h5("Statistics Problem Generator", class = "mb-0 fw-semibold"),
+      tags$a(
+        href = "https://github.com/chadcwilliams/StatsProblemGenerator",
+        target = "_blank",
+        rel = "noopener noreferrer",
+        class = "repo-link",
+        icon("github"),
+        "Go to repo"
+      )
+    ),
 
     layout_sidebar(
       fillable = TRUE,

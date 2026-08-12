@@ -777,7 +777,7 @@ build_plot_for_pdf <- function(test_id, plotdata, stats) {
 # (rather than being stretched/centered across the whole page);
 # plots (fill_page = TRUE) expand to fill the remaining space.
 # --------------------------------------------------------------
-pdf_report_page <- function(title, content_grob, fill_page = FALSE) {
+pdf_report_page <- function(title, content_grob, fill_page = FALSE, footnote = NULL) {
 
   # content_grob is often passed as an unevaluated call (e.g.
   # pdf_table_grob(...)), and R only evaluates function arguments
@@ -795,11 +795,26 @@ pdf_report_page <- function(title, content_grob, fill_page = FALSE) {
     gp = grid::gpar(fontsize = 16, fontface = "bold")
   )
 
+  # Small gray footnote (currently used for "Seed: ..."), left-aligned
+  # near the bottom of the page. A blank placeholder grob is used when
+  # there's no footnote, so the row layout stays identical either way.
+  footnote_grob <- if (!is.null(footnote)) {
+    grid::textGrob(
+      footnote,
+      x = 0, hjust = 0,
+      gp = grid::gpar(fontsize = 9, col = "gray40")
+    )
+  } else {
+    grid::nullGrob()
+  }
+  footnote_height <- 0.25
+
   if (fill_page) {
     gridExtra::grid.arrange(
       title_grob,
       content_grob,
-      heights = grid::unit(c(0.6, 1), c("in", "null")),
+      footnote_grob,
+      heights = grid::unit(c(0.6, 1, footnote_height), c("in", "null", "in")),
       ncol = 1
     )
   } else {
@@ -832,7 +847,11 @@ pdf_report_page <- function(title, content_grob, fill_page = FALSE) {
       title_grob,
       content_grob,
       grid::nullGrob(),
-      heights = grid::unit(c(0.6, content_height + 0.3, 1), c("in", "in", "null")),
+      footnote_grob,
+      heights = grid::unit(
+        c(0.6, content_height + 0.3, 1, footnote_height),
+        c("in", "in", "null", "in")
+      ),
       ncol = 1
     )
   }
@@ -869,9 +888,16 @@ generate_pdf_report <- function(problemdata, stats, plotdata, test_id, test_name
   label_col <- problemdata$label_col
   if (is.null(label_col)) label_col <- "Statistic"
 
+  seed_footnote <- if (!is.null(problemdata$seed)) {
+    paste0("Seed: ", problemdata$seed)
+  } else {
+    NULL
+  }
+
   pdf_report_page(
     title = paste0(test_name, " \u2014 Problem Data"),
-    content_grob = pdf_table_grob(problem_tbl, cols = col_labels, label_col = label_col)
+    content_grob = pdf_table_grob(problem_tbl, cols = col_labels, label_col = label_col),
+    footnote = seed_footnote
   )
 
   # ---- Page 2: Plot ----
@@ -882,7 +908,8 @@ generate_pdf_report <- function(problemdata, stats, plotdata, test_id, test_name
   pdf_report_page(
     title = paste0(test_name, " \u2014 Plot"),
     content_grob = p,
-    fill_page = TRUE
+    fill_page = TRUE,
+    footnote = seed_footnote
   )
 
   # ---- Page 3: Answer key ----
@@ -908,7 +935,8 @@ generate_pdf_report <- function(problemdata, stats, plotdata, test_id, test_name
 
   pdf_report_page(
     title = paste0(test_name, " \u2014 Answer Key"),
-    content_grob = ans_grob
+    content_grob = ans_grob,
+    footnote = seed_footnote
   )
 
   grDevices::dev.off()

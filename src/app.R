@@ -46,7 +46,7 @@ server = function(input, output, session) {
 
     # Holds the raw "problem" table shown in the Data card, so the PDF
     # download can reuse it. Populated by every test script below.
-    problemdata = reactiveValues(table = NULL, col_headers = NULL, label_col = NULL)
+    problemdata = reactiveValues(table = NULL, col_headers = NULL, label_col = NULL, seed = NULL)
 
     # Test id -> display name, used for PDF titles/filenames.
     test_labels = list(
@@ -106,6 +106,7 @@ server = function(input, output, session) {
       problemdata$table <- NULL
       problemdata$col_headers <- NULL
       problemdata$label_col <- NULL
+      problemdata$seed <- NULL
 
       output$data_display <- renderRHandsontable({ NULL })
       output$stats_display <- renderRHandsontable({ NULL })
@@ -129,9 +130,38 @@ server = function(input, output, session) {
     })
     
     observeEvent(input$refresh, {
+      req(active_test())
       fn = test_fns[[active_test()]]
       req(fn)
+
+      # If the person typed a seed, use it exactly; otherwise pick a
+      # random one ourselves (rather than leaving R's RNG unseeded)
+      # so there's always a concrete, reproducible value to show and
+      # store - this is what makes "recall this problem set later"
+      # possible even when nobody set a seed on purpose. Importantly,
+      # this is picked fresh from R's ambient (not fixed) RNG state
+      # each time, so leaving the box empty still gives a different
+      # problem set on every click, not a repeated default.
+      seed_input <- trimws(input$seed)
+      seed_val <- if (nzchar(seed_input) && grepl("^-?[0-9]+$", seed_input)) {
+        as.integer(seed_input)
+      } else {
+        sample.int(1e6, 1)
+      }
+      set.seed(seed_val)
+      problemdata$seed <- seed_val
+
       fn(input, output, stats, plotdata, problemdata)
+    })
+
+    # Bold "Seed used: ..." line shown right under the seed input, so
+    # the person always has the value on screen to write down or
+    # re-enter later to reproduce this exact problem set. Always
+    # rendered (even before a seed exists) so the layout doesn't shift
+    # when "Generate Data" is first clicked - only the number appears.
+    output$seed_display <- renderUI({
+      seed_text <- if (is.null(problemdata$seed)) "" else problemdata$seed
+      tags$div(tags$b(paste0("Seed used: ", seed_text)), class = "mb-2")
     })
 
     # Only show the Download PDF button once a test has been selected
@@ -152,7 +182,18 @@ server = function(input, output, session) {
         } else {
           "problem_set"
         }
-        paste0(label, "_", format(Sys.time(), "%Y%m%d_%H%M%S"), ".pdf")
+        # Use the seed rather than a timestamp, so the filename itself
+        # doubles as the value needed to reproduce this exact problem
+        # set later. problemdata$seed should always be set by the time
+        # this button is reachable (it's set in the same click that
+        # populates problemdata$table, which gates the button), but
+        # fall back to a timestamp just in case.
+        suffix <- if (!is.null(problemdata$seed)) {
+          problemdata$seed
+        } else {
+          format(Sys.time(), "%Y%m%d_%H%M%S")
+        }
+        paste0(label, "_", suffix, ".pdf")
       },
       content = function(file) {
         test_id <- active_test()

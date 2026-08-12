@@ -56,6 +56,14 @@ app_theme = bs_theme(
       border-color: rgba(31, 36, 48, 0.14) !important;
     }
 
+    /* Make placeholder text (e.g. the '1234' seed example) clearly
+       paler than real input text, so it reads as a hint rather than
+       an actual value. */
+    .form-control::placeholder {
+      color: rgba(31, 36, 48, 0.14) !important;
+      opacity: 1;
+    }
+
     .btn {
       border-radius: 0.55rem;
       font-weight: 500;
@@ -197,6 +205,14 @@ UI = function(){
           step = 1,
           width = '100%'
         ),
+        textInput(
+          inputId = 'seed',
+          label = 'Seed (optional)',
+          value = '',
+          placeholder = '1234',
+          width = '100%'
+        ),
+        uiOutput('seed_display'),
 
         tags$hr(class = "divider"),
 

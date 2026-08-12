@@ -427,6 +427,30 @@ pdf_pad_specific_cols <- function(df, cols, digits = 4) {
   df
 }
 
+# Pads numeric-looking cells to a fixed number of decimals for
+# specific ROWS (identified by their value in `label_col`), rather
+# than specific columns - needed for tables like the Chi-Squared
+# answer keys, where a row is built via rbind()-ing numeric vectors
+# together with a text row (e.g. "> .05"), which coerces the whole
+# column to character and silently drops trailing zeros
+# (sprintf/round output like 50 instead of "50.0000"). Cells that are
+# NA, blank, or don't parse as numeric are left untouched.
+pdf_pad_rows_by_label <- function(df, label_col, target_labels, digits = 4) {
+  if (!(label_col %in% names(df))) return(df)
+  row_idx <- which(df[[label_col]] %in% target_labels)
+  if (length(row_idx) == 0) return(df)
+
+  value_cols <- setdiff(names(df), label_col)
+  for (col in value_cols) {
+    vals <- df[[col]][row_idx]
+    numeric_vals <- suppressWarnings(as.numeric(vals))
+    can_pad <- !is.na(vals) & vals != "" & !is.na(numeric_vals)
+    vals[can_pad] <- sprintf(paste0("%.", digits, "f"), numeric_vals[can_pad])
+    df[[col]][row_idx] <- vals
+  }
+  df
+}
+
 # Applies a named label_map (old name -> display label) to a column,
 # mirroring the `tbl$Statistic <- ifelse(tbl$Statistic %in% ...)`
 # pattern used throughout observe_events.R.
@@ -478,13 +502,25 @@ build_answer_df <- function(test_id, stats) {
   } else if (test_id == 1) {
     # Frequency Distribution - full table, not transposed.
     tbl <- stats$data_table
+    # Relative_Frequency/Cum_Rel_Freq are stored as plain rounded
+    # numerics, so converting to display text drops trailing zeros
+    # (e.g. 0.5 instead of 0.5000) - pad them to 4 decimals like every
+    # other test's answer key. Frequency/Cumulative_Frequency are
+    # counts and stay as plain integers.
+    tbl <- pdf_pad_specific_cols(tbl, c("Relative_Frequency", "Cum_Rel_Freq"))
     col_headers <- gsub("_", " ", names(tbl))
     label_col <- "Data"
 
   } else if (test_id %in% c(15, 16)) {
     # Chi-Squared (Goodness of Fit / Homogeneity & Independence) -
-    # full table, not transposed.
+    # full table, not transposed. The E/expected row (test 15) and
+    # the chi-squared/Cramer's V values (both tests) are built by
+    # combining numeric values with a text row (e.g. "> .05") via
+    # rbind()/as.character(), which drops trailing zeros - pad those
+    # specific rows back to 4 decimals. (Whichever labels don't apply
+    # to a given test are simply absent, so this is safe for both.)
     tbl <- stats$data_table
+    tbl <- pdf_pad_rows_by_label(tbl, "Statistic", c("E", "\u03c7\u00b2", "Cramer's V"))
     col_headers <- c("", names(tbl)[-1])
     label_col <- "Statistic"
 

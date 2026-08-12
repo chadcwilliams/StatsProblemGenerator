@@ -62,6 +62,15 @@ observe_events = function(input, output, stats, plotdata, active_test){
                      # Frequency Distribution
                      tbl <- stats$data_table
                      
+                     # Relative_Frequency/Cum_Rel_Freq are stored as
+                     # plain rounded numerics, so with useTypes = FALSE
+                     # below they'd otherwise display with trailing
+                     # zeros dropped (e.g. "0.25" instead of "0.2500").
+                     # Pre-format them as text to keep 4 decimals, same
+                     # as every other numeric answer in the app.
+                     tbl$Relative_Frequency <- sprintf("%.4f", tbl$Relative_Frequency)
+                     tbl$Cum_Rel_Freq <- sprintf("%.4f", tbl$Cum_Rel_Freq)
+                     
                      ht <- rhandsontable(
                        tbl,
                        rowHeaders = FALSE,
@@ -77,6 +86,13 @@ observe_events = function(input, output, stats, plotdata, active_test){
                      
                      # Chi-square Goodness of Fit + Homogeneity/Independence
                      tbl <- stats$data_table
+                     
+                     # E/chi-squared/Cramer's V rows are built by
+                     # combining numeric values with a text row (e.g.
+                     # "> .05"), which drops trailing zeros - pad those
+                     # specific rows back to 4 decimals (uses the
+                     # shared helper from utils/pdf_report.R).
+                     tbl <- pdf_pad_rows_by_label(tbl, "Statistic", c("E", "\u03c7\u00b2", "Cramer's V"))
                      
                      ht <- rhandsontable(
                        tbl,

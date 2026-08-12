@@ -1,0 +1,19 @@
+Package: StatsProblemGenerator
+Type: Application
+Title: Statistics Problem Generator
+Description: Shiny application that generates randomized statistics
+    problems for practice: a data set, a plot, and an answer key,
+    for a selected statistical test.
+Encoding: UTF-8
+Depends: R (>= 4.5.0)
+Imports:
+    shiny (>= 1.12.1),
+    bslib (>= 0.9.0),
+    rhandsontable (>= 0.3.8),
+    ggplot2 (>= 4.0.1),
+    dplyr (>= 1.1.4),
+    gridExtra (>= 2.3.1),
+    faux (>= 1.2.3),
+    rstatix (>= 0.7.3),
+    BSDA (>= 1.2.2),
+    rsconnect (>= 1.7.0)

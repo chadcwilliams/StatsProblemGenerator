@@ -1,4 +1,4 @@
-chi_squared_goodness <- function(input, output, stats, plotdata) {
+chi_squared_goodness <- function(input, output, stats, plotdata, problemdata) {
   
   repeat {
     
@@ -194,6 +194,10 @@ chi_squared_goodness <- function(input, output, stats, plotdata) {
   # OUTPUTS
   # --------------------------------------------------------------
   
+  problemdata$table <- data_wide
+  problemdata$col_headers <- c("", col_names)
+  problemdata$label_col <- "Statistic"
+
   output$data_display <- renderRHandsontable({
     
     rhandsontable(

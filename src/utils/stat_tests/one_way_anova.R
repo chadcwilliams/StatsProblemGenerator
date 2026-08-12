@@ -1,4 +1,4 @@
-one_way_anova <- function(input, output, stats, plotdata) {
+one_way_anova <- function(input, output, stats, plotdata, problemdata) {
   
   # --------------------------------------------------------------
   # Randomly determine number of groups (3–5)
@@ -194,16 +194,25 @@ one_way_anova <- function(input, output, stats, plotdata) {
   # --------------------------------------------------------------
   
   stats$data_table <- statistics
+
+  # Built once here (rather than inline inside renderRHandsontable) so
+  # the same table can also be stashed in `problemdata` for the PDF
+  # download - the on-screen widget below is unchanged otherwise.
+  problem_tbl <- as.data.frame(t(data[, c("n", "Mean", "SS")]))
+  colnames(problem_tbl) <- data$Group
+  problem_tbl$Statistic <- rownames(problem_tbl)
+  rownames(problem_tbl) <- NULL
+
+  problem_tbl$Statistic <- ifelse(problem_tbl$Statistic == "Mean", "x\u0304", problem_tbl$Statistic)
+
+  problem_tbl <- problem_tbl[, c("Statistic", setdiff(names(problem_tbl), "Statistic"))]
+
+  problemdata$table <- problem_tbl
+  problemdata$col_headers <- c("", data$Group)
+
   output$data_display <- renderRHandsontable({
     
-    tbl <- as.data.frame(t(data[, c("n", "Mean", "SS")]))
-    colnames(tbl) <- data$Group
-    tbl$Statistic <- rownames(tbl)
-    rownames(tbl) <- NULL
-    
-    tbl$Statistic <- ifelse(tbl$Statistic == "Mean", "x\u0304", tbl$Statistic)
-    
-    tbl <- tbl[, c("Statistic", setdiff(names(tbl), "Statistic"))]
+    tbl <- problem_tbl
     
     rhandsontable(
       tbl,

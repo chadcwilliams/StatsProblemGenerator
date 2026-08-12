@@ -1,4 +1,4 @@
-chi_squared_homoind <- function(input, output, stats, plotdata) {
+chi_squared_homoind <- function(input, output, stats, plotdata, problemdata) {
   
   check_decimals <- function(x) {
     all(abs(x * 100 - round(x * 100)) < 1e-8)
@@ -177,6 +177,10 @@ chi_squared_homoind <- function(input, output, stats, plotdata) {
   # --------------------------------------------------------------
   # DATA DISPLAY ONLY (NO ANSWERS SHOWN HERE)
   # --------------------------------------------------------------
+  problemdata$table <- data_wide
+  problemdata$col_headers <- c("", col_names)
+  problemdata$label_col <- "Group"
+
   output$data_display <- renderRHandsontable({
     rhandsontable(
       data_wide,

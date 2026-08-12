@@ -1,4 +1,4 @@
-freq_distribution = function(input, output, stats, plotdata) {    
+freq_distribution = function(input, output, stats, plotdata, problemdata) {    
   #Create Data (drawn from a Normal distribution, skewed 33% of the time,
   #rounded to integers, and clipped to stay within the requested value range)
   range_min = input$value_range[1]
@@ -76,6 +76,9 @@ freq_distribution = function(input, output, stats, plotdata) {
   data_grid = as.data.frame(matrix(padded, nrow = nrows, ncol = ncols, byrow = TRUE))
   colnames(data_grid) = paste0("V", 1:ncols)
   
+  problemdata$table <- data_grid
+  problemdata$col_headers <- rep("", ncol(data_grid))
+
   output$data_display = renderRHandsontable(
     rhandsontable(
       data_grid,

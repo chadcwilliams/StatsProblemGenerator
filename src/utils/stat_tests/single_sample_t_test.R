@@ -1,4 +1,4 @@
-single_sample_t_test = function(input, output, stats, plotdata) {      
+single_sample_t_test = function(input, output, stats, plotdata, problemdata) {      
   #Single Sample t-Test
   #Create Data
   data = data.frame(
@@ -109,34 +109,39 @@ single_sample_t_test = function(input, output, stats, plotdata) {
   
   #Set Outputs
   stats$data_table = descriptives
+  
+  tbl <- as.data.frame(t(data[1, 2:dim(data)[2]]))
+  tbl$Variable <- rownames(tbl)
+  rownames(tbl) <- NULL
+  
+  label_map <- c(
+    mu     = "\u03bc",
+    p_alpha = "p(\u03b1)",
+    X_Mean = "x\u0304"
+  )
+  tbl$Variable <- ifelse(
+    tbl$Variable %in% names(label_map),
+    label_map[tbl$Variable],
+    tbl$Variable
+  )
+  
+  tbl <- tbl[, c("Variable", setdiff(names(tbl), "Variable"))]
+  names(tbl)[2] <- "Value"
+  
+  tbl$Value <- vapply(tbl$Value, function(v) {
+    v_trim <- trimws(as.character(v))
+    if (grepl("^-?[0-9]+\\.[0-9]+$", v_trim)) {
+      sprintf("%.2f", as.numeric(v_trim))
+    } else {
+      v_trim
+    }
+  }, character(1))
+  
+  problemdata$table <- tbl
+  problemdata$col_headers <- c("Variable", "Value")
+  problemdata$label_col <- "Variable"
+
   output$data_display = renderRHandsontable({
-    
-    tbl <- as.data.frame(t(data[1, 2:dim(data)[2]]))
-    tbl$Variable <- rownames(tbl)
-    rownames(tbl) <- NULL
-    
-    label_map <- c(
-      mu     = "\u03bc",
-      p_alpha = "p(\u03b1)",
-      X_Mean = "x\u0304"
-    )
-    tbl$Variable <- ifelse(
-      tbl$Variable %in% names(label_map),
-      label_map[tbl$Variable],
-      tbl$Variable
-    )
-    
-    tbl <- tbl[, c("Variable", setdiff(names(tbl), "Variable"))]
-    names(tbl)[2] <- "Value"
-    
-    tbl$Value <- vapply(tbl$Value, function(v) {
-      v_trim <- trimws(as.character(v))
-      if (grepl("^-?[0-9]+\\.[0-9]+$", v_trim)) {
-        sprintf("%.2f", as.numeric(v_trim))
-      } else {
-        v_trim
-      }
-    }, character(1))
     
     rhandsontable(
       tbl,

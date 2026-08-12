@@ -1,4 +1,4 @@
-z_scores = function(input, output, stats, plotdata) {      
+z_scores = function(input, output, stats, plotdata, problemdata) {      
   #Single Participant Z-Test
   #Create Data
   data = data.frame(
@@ -26,25 +26,30 @@ z_scores = function(input, output, stats, plotdata) {
   #Set Outputs
   stats$data_table = descriptives
   stats$p_value = round(pnorm(z), digits = 4)  # kept separate, used only for plotting
+  
+  tbl <- as.data.frame(t(data))
+  tbl$Variable <- rownames(tbl)
+  rownames(tbl) <- NULL
+  
+  tbl$Variable <- ifelse(tbl$Variable == "X_mean", "x\u0304", tbl$Variable)
+  
+  tbl <- tbl[, c("Variable", setdiff(names(tbl), "Variable"))]
+  names(tbl)[2] <- "Value"
+  
+  tbl$Value <- vapply(tbl$Value, function(v) {
+    v_trim <- trimws(as.character(v))
+    if (grepl("^-?[0-9]+\\.[0-9]+$", v_trim)) {
+      sprintf("%.2f", as.numeric(v_trim))
+    } else {
+      v_trim
+    }
+  }, character(1))
+  
+  problemdata$table <- tbl
+  problemdata$col_headers <- c("Variable", "Value")
+  problemdata$label_col <- "Variable"
+
   output$data_display = renderRHandsontable({
-    
-    tbl <- as.data.frame(t(data))
-    tbl$Variable <- rownames(tbl)
-    rownames(tbl) <- NULL
-    
-    tbl$Variable <- ifelse(tbl$Variable == "X_mean", "x\u0304", tbl$Variable)
-    
-    tbl <- tbl[, c("Variable", setdiff(names(tbl), "Variable"))]
-    names(tbl)[2] <- "Value"
-    
-    tbl$Value <- vapply(tbl$Value, function(v) {
-      v_trim <- trimws(as.character(v))
-      if (grepl("^-?[0-9]+\\.[0-9]+$", v_trim)) {
-        sprintf("%.2f", as.numeric(v_trim))
-      } else {
-        v_trim
-      }
-    }, character(1))
     
     rhandsontable(
       tbl,

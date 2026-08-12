@@ -205,7 +205,8 @@ UI = function(){
           class = "btn-toolbar-stack",
           actionButton('refresh', 'Generate Data', icon = icon("rotate"), class = "btn-primary"),
           actionButton('distribution', 'Plot Data', icon = icon("chart-line"), class = "btn-outline-secondary"),
-          actionButton('answers', 'Show Answers', icon = icon("check"), class = "btn-outline-secondary")
+          actionButton('answers', 'Show Answers', icon = icon("check"), class = "btn-outline-secondary"),
+          uiOutput('download_pdf_slot')
         )
       ),
 

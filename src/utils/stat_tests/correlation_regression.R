@@ -1,4 +1,4 @@
-correlation_regression = function(input, output, stats, plotdata) {
+correlation_regression = function(input, output, stats, plotdata, problemdata) {
   #Correlation & Regression
   #Create Data
   data = rnorm_multi(
@@ -67,15 +67,18 @@ correlation_regression = function(input, output, stats, plotdata) {
   #Set Outputs
   stats$data_table = descriptives
   
+  tbl <- data[, c("X", "Y", "X_SD", "Y_SD")]
+  
+  # Pre-format X_SD/Y_SD as display strings (4 decimals, blank for NA)
+  # rather than letting rhandsontable format a column containing NA,
+  # which triggers an internal indexing bug.
+  tbl$X_SD <- ifelse(is.na(tbl$X_SD), "", sprintf("%.4f", tbl$X_SD))
+  tbl$Y_SD <- ifelse(is.na(tbl$Y_SD), "", sprintf("%.4f", tbl$Y_SD))
+  
+  problemdata$table <- tbl
+  problemdata$col_headers <- c("X", "Y", "SD<sub>X</sub>", "SD<sub>Y</sub>")
+
   output$data_display = renderRHandsontable({
-    
-    tbl <- data[, c("X", "Y", "X_SD", "Y_SD")]
-    
-    # Pre-format X_SD/Y_SD as display strings (4 decimals, blank for NA)
-    # rather than letting rhandsontable format a column containing NA,
-    # which triggers an internal indexing bug.
-    tbl$X_SD <- ifelse(is.na(tbl$X_SD), "", sprintf("%.4f", tbl$X_SD))
-    tbl$Y_SD <- ifelse(is.na(tbl$Y_SD), "", sprintf("%.4f", tbl$Y_SD))
     
     rhandsontable(
       tbl,

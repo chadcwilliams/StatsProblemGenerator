@@ -1,4 +1,4 @@
-factorial_anova <- function(input, output, stats, plotdata) {
+factorial_anova <- function(input, output, stats, plotdata, problemdata) {
   
   # --------------------------------------------------------------
   # Factors
@@ -398,14 +398,17 @@ factorial_anova <- function(input, output, stats, plotdata) {
   # --------------------------------------------------------------
   stats$data_table <- statistics
   
+  tbl <- data
+  
+  tbl$Statistic <- rownames(tbl)
+  rownames(tbl) <- NULL
+  
+  tbl <- tbl[, c("Statistic", setdiff(names(tbl), "Statistic"))]
+  
+  problemdata$table <- tbl
+  problemdata$col_headers <- c("", colnames(data))
+
   output$data_display <- renderRHandsontable({
-    
-    tbl <- data
-    
-    tbl$Statistic <- rownames(tbl)
-    rownames(tbl) <- NULL
-    
-    tbl <- tbl[, c("Statistic", setdiff(names(tbl), "Statistic"))]
     
     rhandsontable(
       tbl,

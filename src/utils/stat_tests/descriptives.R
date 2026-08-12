@@ -1,4 +1,4 @@
-descriptives = function(input, output, stats, plotdata) {         
+descriptives = function(input, output, stats, plotdata, problemdata) {         
   #Descriptives
   range_min = input$value_range[1]
   range_max = input$value_range[2]
@@ -124,6 +124,9 @@ descriptives = function(input, output, stats, plotdata) {
   data_grid = as.data.frame(matrix(padded, nrow = nrows, ncol = ncols, byrow = TRUE))
   colnames(data_grid) = paste0("V", 1:ncols)
   
+  problemdata$table <- data_grid
+  problemdata$col_headers <- rep("", ncol(data_grid))
+
   output$data_display = renderRHandsontable(
     rhandsontable(
       data_grid,

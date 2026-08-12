@@ -1,4 +1,4 @@
-multiple_comparisons <- function(input, output, stats, plotdata) {
+multiple_comparisons <- function(input, output, stats, plotdata, problemdata) {
   
   # --------------------------------------------------------------
   # Randomly determine number of groups (3–5)
@@ -252,29 +252,33 @@ multiple_comparisons <- function(input, output, stats, plotdata) {
   }
   
   stats$data_table <- statistics
+  
+  tbl <- as.data.frame(t(data[, setdiff(names(data), "Group")]))
+  colnames(tbl) <- data$Group
+  tbl$Statistic <- rownames(tbl)
+  rownames(tbl) <- NULL
+  
+  label_map <- c(
+    Mean = "x\u0304",
+    df_e = "df<sub>E</sub>",
+    MS_e = "MS<sub>E</sub>",
+    F    = "F(obs)",
+    p    = "p(obs)",
+    planned_comparisons = "Planned Comparisons",
+    post_hocs           = "Post-Hocs"
+  )
+  tbl$Statistic <- ifelse(
+    tbl$Statistic %in% names(label_map),
+    label_map[tbl$Statistic],
+    tbl$Statistic
+  )
+  
+  tbl <- tbl[, c("Statistic", setdiff(names(tbl), "Statistic"))]
+  
+  problemdata$table <- tbl
+  problemdata$col_headers <- c("", data$Group)
+
   output$data_display <- renderRHandsontable({
-    
-    tbl <- as.data.frame(t(data[, setdiff(names(data), "Group")]))
-    colnames(tbl) <- data$Group
-    tbl$Statistic <- rownames(tbl)
-    rownames(tbl) <- NULL
-    
-    label_map <- c(
-      Mean = "x\u0304",
-      df_e = "df<sub>E</sub>",
-      MS_e = "MS<sub>E</sub>",
-      F    = "F(obs)",
-      p    = "p(obs)",
-      planned_comparisons = "Planned Comparisons",
-      post_hocs           = "Post-Hocs"
-    )
-    tbl$Statistic <- ifelse(
-      tbl$Statistic %in% names(label_map),
-      label_map[tbl$Statistic],
-      tbl$Statistic
-    )
-    
-    tbl <- tbl[, c("Statistic", setdiff(names(tbl), "Statistic"))]
     
     rhandsontable(
       tbl,

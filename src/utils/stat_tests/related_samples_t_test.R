@@ -1,4 +1,4 @@
-related_samples_t_test <- function(input, output, stats, plotdata) {
+related_samples_t_test <- function(input, output, stats, plotdata, problemdata) {
   
   # --------------------------------------------------------------
   # Create paired data
@@ -131,35 +131,39 @@ related_samples_t_test <- function(input, output, stats, plotdata) {
   # --------------------------------------------------------------
   
   stats$data_table <- statistics
+  
+  tbl <- as.data.frame(t(data[1, 2:ncol(data)]))
+  tbl$Variable <- rownames(tbl)
+  rownames(tbl) <- NULL
+  
+  label_map <- c(
+    mu     = "\u03bc<sub>D\u0304</sub>",
+    p_alpha = "p(\u03b1)",
+    D_Mean = "D\u0304",
+    SS     = "SS<sub>D</sub>"
+  )
+  tbl$Variable <- ifelse(
+    tbl$Variable %in% names(label_map),
+    label_map[tbl$Variable],
+    tbl$Variable
+  )
+  
+  tbl <- tbl[, c("Variable", names(tbl)[1])]
+  names(tbl)[2] <- "Value"
+  
+  tbl$Value <- vapply(tbl$Value, function(v) {
+    v_trim <- trimws(as.character(v))
+    if (grepl("^-?[0-9]+\\.[0-9]+$", v_trim)) {
+      sprintf("%.4f", as.numeric(v_trim))
+    } else {
+      v_trim
+    }
+  }, character(1))
+  
+  problemdata$table <- tbl
+  problemdata$label_col <- "Variable"
+
   output$data_display <- renderRHandsontable({
-    
-    tbl <- as.data.frame(t(data[1, 2:ncol(data)]))
-    tbl$Variable <- rownames(tbl)
-    rownames(tbl) <- NULL
-    
-    label_map <- c(
-      mu     = "\u03bc<sub>D\u0304</sub>",
-      p_alpha = "p(\u03b1)",
-      D_Mean = "D\u0304",
-      SS     = "SS<sub>D</sub>"
-    )
-    tbl$Variable <- ifelse(
-      tbl$Variable %in% names(label_map),
-      label_map[tbl$Variable],
-      tbl$Variable
-    )
-    
-    tbl <- tbl[, c("Variable", names(tbl)[1])]
-    names(tbl)[2] <- "Value"
-    
-    tbl$Value <- vapply(tbl$Value, function(v) {
-      v_trim <- trimws(as.character(v))
-      if (grepl("^-?[0-9]+\\.[0-9]+$", v_trim)) {
-        sprintf("%.4f", as.numeric(v_trim))
-      } else {
-        v_trim
-      }
-    }, character(1))
     
     rhandsontable(
       tbl,

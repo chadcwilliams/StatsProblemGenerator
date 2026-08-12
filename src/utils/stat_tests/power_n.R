@@ -1,4 +1,4 @@
-power_n <- function(input, output, stats, plotdata) {
+power_n <- function(input, output, stats, plotdata, problemdata) {
   
   # --------------------------------------------------------------
   # Open Power Table
@@ -82,22 +82,26 @@ power_n <- function(input, output, stats, plotdata) {
   # --------------------------------------------------------------
   
   stats$data_table <- statistics
+  
+  tbl <- as.data.frame(t(data))
+  tbl$Variable <- rownames(tbl)
+  rownames(tbl) <- NULL
+  tbl <- tbl[, c("Variable", names(tbl)[1])]
+  names(tbl)[2] <- "Value"
+  
+  tbl$Value <- vapply(tbl$Value, function(v) {
+    v_trim <- trimws(as.character(v))
+    if (grepl("^-?[0-9]+\\.[0-9]+$", v_trim)) {
+      sprintf("%.4f", as.numeric(v_trim))
+    } else {
+      v_trim
+    }
+  }, character(1))
+  
+  problemdata$table <- tbl
+  problemdata$label_col <- "Variable"
+
   output$data_display <- renderRHandsontable({
-    
-    tbl <- as.data.frame(t(data))
-    tbl$Variable <- rownames(tbl)
-    rownames(tbl) <- NULL
-    tbl <- tbl[, c("Variable", names(tbl)[1])]
-    names(tbl)[2] <- "Value"
-    
-    tbl$Value <- vapply(tbl$Value, function(v) {
-      v_trim <- trimws(as.character(v))
-      if (grepl("^-?[0-9]+\\.[0-9]+$", v_trim)) {
-        sprintf("%.4f", as.numeric(v_trim))
-      } else {
-        v_trim
-      }
-    }, character(1))
     
     rhandsontable(
       tbl,

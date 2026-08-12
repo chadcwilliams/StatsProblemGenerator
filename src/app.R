@@ -11,10 +11,13 @@ library(rhandsontable) #Data tables
 library(ggplot2) #Plotting
 library(faux) #Creating correlated data (rnorm_multi)
 library(rstatix) #Dependency of faux
+library(gridExtra) #PDF report layout (tables + plot combined into one PDF)
+library(dplyr) #Used by pdf_report.R's plot-building helpers
 
 #Setup
 source("utils/ui.R")
 source("utils/observe_events.R")
+source("utils/pdf_report.R")
 source("utils/stat_tests/freq_distribution.R")
 source("utils/stat_tests/descriptives.R")
 source("utils/stat_tests/correlation_regression.R")
@@ -40,7 +43,32 @@ ui = UI
 server = function(input, output, session) {
     stats = reactiveValues(data_table = NULL)
     plotdata = reactiveValues(data = NULL)
-    
+
+    # Holds the raw "problem" table shown in the Data card, so the PDF
+    # download can reuse it. Populated by every test script below.
+    problemdata = reactiveValues(table = NULL, col_headers = NULL, label_col = NULL)
+
+    # Test id -> display name, used for PDF titles/filenames.
+    test_labels = list(
+      '1' = "Frequency Distribution",
+      '2' = "Descriptives",
+      '4' = "Correlation & Regression",
+      '17' = "Z-scores",
+      '3' = "Single Participant Z-Test",
+      '5' = "Single Sample Z-Test",
+      '6' = "Single Sample T-Test",
+      '7' = "Related Samples T-Test",
+      '8' = "Correlation (Advanced)",
+      '9' = "Independent Samples T-Test",
+      '10' = "Power (calculate n)",
+      '11' = "Power (calculate power)",
+      '12' = "One-Way ANOVA",
+      '13' = "Multiple Comparisons",
+      '14' = "Multifactorial ANOVA",
+      '15' = "Chi-Squared (Goodness of Fit)",
+      '16' = "Chi-Squared (Homogeneity & Independence)"
+    )
+
     test_fns = list(
       '1' = freq_distribution,
       '2' = descriptives,
@@ -80,8 +108,41 @@ server = function(input, output, session) {
     observeEvent(input$refresh, {
       fn = test_fns[[active_test()]]
       req(fn)
-      fn(input, output, stats, plotdata)
+      fn(input, output, stats, plotdata, problemdata)
     })
+
+    # Only show the Download PDF button once a test has been selected
+    # AND a data set has been generated, so the download handler below
+    # can never be invoked in a state where there's nothing to
+    # download (no silent-error/500 path).
+    output$download_pdf_slot <- renderUI({
+      req(active_test())
+      req(problemdata$table)
+      downloadButton('download_pdf', 'Download PDF', icon = icon("download"), class = "btn-outline-secondary")
+    })
+
+    output$download_pdf <- downloadHandler(
+      filename = function() {
+        test_id <- active_test()
+        label <- if (!is.null(test_id) && test_id %in% names(test_labels)) {
+          gsub("[^A-Za-z0-9]+", "_", test_labels[[test_id]])
+        } else {
+          "problem_set"
+        }
+        paste0(label, "_", format(Sys.time(), "%Y%m%d_%H%M%S"), ".pdf")
+      },
+      content = function(file) {
+        test_id <- active_test()
+        pdf_path <- generate_pdf_report(
+          problemdata = problemdata,
+          stats = stats,
+          plotdata = plotdata,
+          test_id = as.numeric(test_id),
+          test_name = test_labels[[test_id]]
+        )
+        file.copy(pdf_path, file, overwrite = TRUE)
+      }
+    )
 
     observe_events(input, output, stats, plotdata, active_test)
 }

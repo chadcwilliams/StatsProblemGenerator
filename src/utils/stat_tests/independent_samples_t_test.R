@@ -1,4 +1,4 @@
-independent_samples_t_test <- function(input, output, stats, plotdata) {
+independent_samples_t_test <- function(input, output, stats, plotdata, problemdata) {
   
   # --------------------------------------------------------------
   # Create paired data
@@ -152,39 +152,43 @@ independent_samples_t_test <- function(input, output, stats, plotdata) {
   # --------------------------------------------------------------
   
   stats$data_table <- statistics
+  
+  tbl <- as.data.frame(t(data[1, 3:ncol(data)]))
+  tbl$Variable <- rownames(tbl)
+  rownames(tbl) <- NULL
+  
+  label_map <- c(
+    mu     = "\u03bc",
+    p_alpha = "p(\u03b1)",
+    n1     = "n\u2081",
+    n2     = "n\u2082",
+    Mean1  = "x\u0304\u2081",
+    Mean2  = "x\u0304\u2082",
+    SS1    = "SS\u2081",
+    SS2    = "SS\u2082"
+  )
+  tbl$Variable <- ifelse(
+    tbl$Variable %in% names(label_map),
+    label_map[tbl$Variable],
+    tbl$Variable
+  )
+  
+  tbl <- tbl[, c("Variable", names(tbl)[1])]
+  names(tbl)[2] <- "Value"
+  
+  tbl$Value <- vapply(tbl$Value, function(v) {
+    v_trim <- trimws(as.character(v))
+    if (grepl("^-?[0-9]+\\.[0-9]+$", v_trim)) {
+      sprintf("%.4f", as.numeric(v_trim))
+    } else {
+      v_trim
+    }
+  }, character(1))
+  
+  problemdata$table <- tbl
+  problemdata$label_col <- "Variable"
+
   output$data_display <- renderRHandsontable({
-    
-    tbl <- as.data.frame(t(data[1, 3:ncol(data)]))
-    tbl$Variable <- rownames(tbl)
-    rownames(tbl) <- NULL
-    
-    label_map <- c(
-      mu     = "\u03bc",
-      p_alpha = "p(\u03b1)",
-      n1     = "n\u2081",
-      n2     = "n\u2082",
-      Mean1  = "x\u0304\u2081",
-      Mean2  = "x\u0304\u2082",
-      SS1    = "SS\u2081",
-      SS2    = "SS\u2082"
-    )
-    tbl$Variable <- ifelse(
-      tbl$Variable %in% names(label_map),
-      label_map[tbl$Variable],
-      tbl$Variable
-    )
-    
-    tbl <- tbl[, c("Variable", names(tbl)[1])]
-    names(tbl)[2] <- "Value"
-    
-    tbl$Value <- vapply(tbl$Value, function(v) {
-      v_trim <- trimws(as.character(v))
-      if (grepl("^-?[0-9]+\\.[0-9]+$", v_trim)) {
-        sprintf("%.4f", as.numeric(v_trim))
-      } else {
-        v_trim
-      }
-    }, character(1))
     
     rhandsontable(
       tbl,

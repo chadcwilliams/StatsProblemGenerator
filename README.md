@@ -3,7 +3,6 @@
 Shiny application that generates randomized statistics problems for practice: a data set, a plot, and an answer key, for a selected statistical test.
 
 App: https://chadcwilliams.shinyapps.io/StatsProblemGenerator/
-
 Repo: https://github.com/chadcwilliams/StatsProblemGenerator
 
 ## Overview
@@ -15,6 +14,8 @@ The dropdowns are labeled "Psyc 300A" and "Psyc 300B" and split the 17 supported
 ## Usage
 
 Open the app: https://chadcwilliams.shinyapps.io/StatsProblemGenerator/
+
+![App interface, numbered](src/images/app-overview.png)
 
 1. **Select a test.** Choose one option from either dropdown. Selecting a test in one dropdown clears the other; only one test is active at a time.
 2. **Set parameters.**

@@ -167,7 +167,7 @@ UI = function(){
         rel = "noopener noreferrer",
         class = "repo-link",
         icon("github"),
-        "Go to repo"
+        "Help"
       )
     ),
 

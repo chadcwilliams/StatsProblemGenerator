@@ -300,6 +300,7 @@ pdf_apply_math_labels <- function(tbl_grob, col_index, raw_labels) {
 pdf_table_grob <- function(df, cols = names(df), label_col = "Statistic", raw_labels = NULL,
                             max_width_in = 7.3, max_height_in = 9.3,
                             base_size = 11, min_base_size = 6) {
+  df <- pdf_blank_na(df)
   raw_cols <- cols
   safe_cols <- vapply(cols, pdf_strip_html, character(1), USE.NAMES = FALSE)
 
@@ -423,6 +424,20 @@ pdf_pad_specific_cols <- function(df, cols, digits = 4) {
         sprintf(paste0("%.", digits, "f"), suppressWarnings(as.numeric(df[[col]])))
       )
     }
+  }
+  df
+}
+
+# Converts every NA cell in a data.frame to an empty string. Needed
+# because gridExtra::tableGrob() (via as.character()/format()) turns
+# an actual NA value into the literal text "NA" in the rendered cell,
+# rather than leaving it blank - this runs right before a table is
+# built so genuinely-missing/not-applicable cells (e.g. the F/p/eta-
+# squared columns on a Factorial ANOVA source row that doesn't have
+# one) show up empty instead.
+pdf_blank_na <- function(df) {
+  for (col in names(df)) {
+    df[[col]][is.na(df[[col]])] <- ""
   }
   df
 }

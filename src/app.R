@@ -90,10 +90,32 @@ server = function(input, output, session) {
     )
     
     active_test <- reactiveVal(NULL)
-    
+
+    # Wipes everything tied to the previously-selected test - the
+    # underlying reactiveValues (stats/plotdata/problemdata) and the
+    # three rendered outputs (Data, Answer Key, Plot) - so switching
+    # tests never leaves stale content or data on screen. Without
+    # this, the old test's table/plot/answers stay visible (and the
+    # old test's data stays in problemdata/stats/plotdata) until
+    # "Generate Data" is clicked, which can produce mismatched or
+    # broken-looking output if the person clicks "Show Answers" or
+    # "Plot Data" for the new test before regenerating.
+    clear_test_state <- function() {
+      stats$data_table <- NULL
+      plotdata$data <- NULL
+      problemdata$table <- NULL
+      problemdata$col_headers <- NULL
+      problemdata$label_col <- NULL
+
+      output$data_display <- renderRHandsontable({ NULL })
+      output$stats_display <- renderRHandsontable({ NULL })
+      output$distribution_display <- renderPlot({ NULL })
+    }
+
     observeEvent(input$Test_300A, ignoreInit = TRUE, {
       if (input$Test_300A != "") {
         updateSelectInput(session, "Test_300B", selected = "")
+        clear_test_state()
         active_test(input$Test_300A)
       }
     })
@@ -101,6 +123,7 @@ server = function(input, output, session) {
     observeEvent(input$Test_300B, ignoreInit = TRUE, {
       if (input$Test_300B != "") {
         updateSelectInput(session, "Test_300A", selected = "")
+        clear_test_state()
         active_test(input$Test_300B)
       }
     })

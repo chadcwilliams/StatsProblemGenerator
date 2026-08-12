@@ -3,6 +3,7 @@
 Shiny application that generates randomized statistics problems for practice: a data set, a plot, and an answer key, for a selected statistical test.
 
 App: https://chadcwilliams.shinyapps.io/StatsProblemGenerator/
+
 Repo: https://github.com/chadcwilliams/StatsProblemGenerator
 
 ## Overview
@@ -22,7 +23,7 @@ Open the app: https://chadcwilliams.shinyapps.io/StatsProblemGenerator/
    - *Seed* — optional. See [Seed](#seed).
 3. **Generate Data.** Produces a data set and displays it in the Data panel.
 4. **Plot Data.** Renders the plot associated with the selected test.
-5. **Show Answers.** Displays the worked solution: intermediate statistics, the test statistic, the p-value, and the decision (reject or retain the null).
+5. **Show Answers.** Displays the worked solution.
 6. **Download PDF.** Available once a data set exists. Downloads a three-page PDF: problem data, plot, answer key. See [PDF output](#pdf-output).
 
 Selecting a different test clears the data, plot, and answers currently on screen.
